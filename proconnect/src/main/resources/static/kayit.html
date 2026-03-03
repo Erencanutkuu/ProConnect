@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ProConnect - Kayıt Ol</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; background: #f4f4f4; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 300px; }
+        input, select { display: block; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .geri-link { margin-top: 15px; display: block; text-align: center; color: #666; text-decoration: none; font-size: 14px; }
+        
+        /* TC Kimlik alanını başlangıçta gizlemek için */
+        #usta-ozel-alanlar { display: none; transition: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Kayıt Ol</h2>
+        <input type="text" id="ad" placeholder="Ad">
+        <input type="text" id="soyad" placeholder="Soyad">
+        <input type="email" id="eposta" placeholder="E-posta">
+        <input type="password" id="sifre" placeholder="Şifre">
+        
+        <select id="rol" onchange="rolDegisti()">
+            <option value="MUSTERI">Müşteri</option>
+            <option value="USTA">Usta</option>
+        </select>
+
+        <div id="usta-ozel-alanlar">
+            <input type="text" id="tcno" placeholder="TC Kimlik No" maxlength="11">
+        </div>
+
+        <button onclick="kayitOl()">Kaydet</button>
+        <p id="mesaj"></p>
+        <a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>
+    </div>
+
+    <script>
+        // Rol değiştiğinde TC alanını göster/gizle
+        function rolDegisti() {
+            const rol = document.getElementById('rol').value;
+            const ustaAlani = document.getElementById('usta-ozel-alanlar');
+            
+            if (rol === 'USTA') {
+                ustaAlani.style.display = 'block';
+            } else {
+                ustaAlani.style.display = 'none';
+                document.getElementById('tcno').value = ''; // Müşteriye dönülürse içeriği temizle
+            }
+        }
+
+        async function kayitOl() {
+            const rol = document.getElementById('rol').value;
+            
+            const veri = {
+                ad: document.getElementById('ad').value,
+                soyad: document.getElementById('soyad').value,
+                eposta: document.getElementById('eposta').value,
+                sifre: document.getElementById('sifre').value,
+                rol: rol,
+                // Eğer usta seçiliyse TC'yi al, değilse boş gönder veya hiç gönderme
+                tcno: rol === 'USTA' ? document.getElementById('tcno').value : null
+                
+            };
+
+            // Basit bir doğrulama: Usta seçiliyse TC boş olmasın
+            if (rol === 'USTA' && !veri.tcno) {
+                alert("Lütfen TC Kimlik numaranızı giriniz.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/kaydol', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(veri)
+                });
+
+                if (response.ok) {
+                    document.getElementById('mesaj').innerText = "Başarıyla kaydedildi!";
+                    document.getElementById('mesaj').style.color = "green";
+                } else {
+                    document.getElementById('mesaj').innerText = "Hata oluştu!";
+                    document.getElementById('mesaj').style.color = "red";
+                }
+            } catch (error) {
+                console.error("Hata:", error);
+                document.getElementById('mesaj').innerText = "Sunucuya bağlanılamadı.";
+            }
+        }
+    </script>
+</body>
+</html>
