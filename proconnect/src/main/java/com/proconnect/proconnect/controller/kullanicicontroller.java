@@ -3,6 +3,9 @@ package com.proconnect.proconnect.controller;
 import com.proconnect.proconnect.dto.kaydol;
 import com.proconnect.proconnect.entity.kullanici;
 import com.proconnect.proconnect.service.kullaniciservice;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +17,7 @@ public class kullanicicontroller {
     private kullaniciservice service;
 
     @PostMapping("kaydol") // Adresimiz artık: localhost:8080/kaydol
-    public kullanici kaydol(@RequestBody kaydol request) {  // verileri çekmek için
+    public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için
         return service.kullaniciKaydet(request); // Müşteri olarak kaydet
     }
 }

@@ -54,21 +54,23 @@
             const rol = document.getElementById('rol').value;
             
             const veri = {
-                ad: document.getElementById('ad').value,
-                soyad: document.getElementById('soyad').value,
-                eposta: document.getElementById('eposta').value,
-                sifre: document.getElementById('sifre').value,
+                ad: document.getElementById('ad').value.trim(),
+                soyad: document.getElementById('soyad').value.trim(),
+                eposta: document.getElementById('eposta').value.trim(),
+                sifre: document.getElementById('sifre').value.trim(),
                 rol: rol,
                 // Eğer usta seçiliyse TC'yi al, değilse boş gönder veya hiç gönderme
-                tcno: rol === 'USTA' ? document.getElementById('tcno').value : null
+                tcno: rol === 'USTA' ? document.getElementById('tcno').value.trim() : null
                 
             };
+            console.log(veri);
 
             // Basit bir doğrulama: Usta seçiliyse TC boş olmasın
             if (rol === 'USTA' && !veri.tcno) {
                 alert("Lütfen TC Kimlik numaranızı giriniz.");
                 return;
             }
+            
 
             try {
                 const response = await fetch('/kaydol', {
@@ -81,7 +83,32 @@
                     document.getElementById('mesaj').innerText = "Başarıyla kaydedildi!";
                     document.getElementById('mesaj').style.color = "green";
                 } else {
-                    document.getElementById('mesaj').innerText = "Hata oluştu!";
+                    let hataMesaji = "Hata oluştu!";
+                    const raw = await response.text();
+                    const contentType = response.headers.get('content-type') || '';
+                    let data = null;
+
+                    if (raw && contentType.includes('application/json')) {
+                        try { data = JSON.parse(raw); } catch {}
+                    }
+
+                    console.log('Hata response:', {
+                        status: response.status,
+                        contentType,
+                        raw
+                    });
+
+                    if (data && data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+                        hataMesaji = data.errors
+                            .map(e => `${e.field || 'alan'}: ${e.message || 'geçersiz'}`)
+                            .join(', ');
+                    } else if (data && data.message) {
+                        hataMesaji = data.message;
+                    } else if (raw) {
+                        hataMesaji = raw;
+                    }
+
+                    document.getElementById('mesaj').innerText = hataMesaji;
                     document.getElementById('mesaj').style.color = "red";
                 }
             } catch (error) {
