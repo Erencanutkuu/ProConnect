@@ -2,16 +2,210 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ProConnect - Ana Sayfa</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; }
-        /* Navigasyon Çubuğu */
-        .navbar { background: #333; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: bold; }
-        /* Köşedeki Kayıt Butonu */
-        .btn-kayit { background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
-        .btn-kayit:hover { background: #218838; }
-        .hero { text-align: center; padding: 100px 20px; }
+        :root {
+            --bg: #f5f2ee;
+            --card: #ffffff;
+            --ink: #0f1a14;
+            --muted: #5c5c5c;
+            --accent: #19a15f;
+            --accent-2: #0b7a45;
+            --accent-3: #0f4b2f;
+            --shadow: 0 14px 36px rgba(6, 28, 18, 0.12);
+            --radius: 18px;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(1000px 600px at 10% -10%, #fff7e8 0%, transparent 60%),
+                        radial-gradient(900px 500px at 90% -20%, #e9f7ef 0%, transparent 55%),
+                        var(--bg);
+            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            background: rgba(245, 242, 238, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            z-index: 10;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: 0.3px;
+        }
+        .btn-kayit {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 20px rgba(31, 164, 99, 0.25);
+        }
+        .btn-kayit:hover { transform: translateY(-2px); }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 24px 60px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 30px;
+            align-items: center;
+            margin: 10px 0 40px;
+        }
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 44px);
+            margin: 0 0 12px;
+        }
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 18px;
+        }
+        .hero-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+        .hero-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        .badge {
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eef7f1;
+            color: var(--accent-2);
+            font-weight: 600;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(22px, 3vw, 34px);
+            margin: 30px 0 24px;
+            font-weight: 800;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 44px rgba(6, 28, 18, 0.2);
+        }
+        .card-media {
+            height: 120px;
+            background: linear-gradient(120deg, #d9e8ff, #fef3d4);
+            position: relative;
+        }
+        .card-media::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(120px 60px at 80% 30%, rgba(255,255,255,0.7), transparent 60%),
+                        radial-gradient(140px 80px at 20% 70%, rgba(255,255,255,0.5), transparent 60%);
+        }
+        .card-body {
+            padding: 16px 16px 18px;
+        }
+        .card-title {
+            margin: 0 0 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e7b46;
+        }
+        .meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: #444;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .meta span { display: inline-flex; gap: 6px; align-items: center; }
+        .btn-card {
+            margin-top: 10px;
+            display: inline-block;
+            background: #25a95a;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .card-action {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(15, 75, 47, 0.05), rgba(15, 75, 47, 0.8));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .card:hover .card-action {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .card-action .action-btn {
+            background: #1db362;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 999px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+        }
+        .card-action .action-btn:hover {
+            background: #17a358;
+        }
+
+        @media (max-width: 980px) {
+            .hero { grid-template-columns: 1fr; }
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 560px) {
+            .navbar { padding: 16px 18px; }
+            .wrap { padding: 20px 16px 50px; }
+            .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -20,9 +214,109 @@
         <a href="kayit.html" class="btn-kayit">Kayıt Ol</a>
     </div>
 
-    <div class="hero">
-        <h1>ProConnect Dünyasına Hoş Geldiniz</h1>
-        <p>Usta ve müşterileri bir araya getiren en akıllı platform.</p>
+    <div class="wrap">
+        <section class="hero">
+            <div>
+                <h1>Haftanın Trend Hizmetleri</h1>
+                <p>Doğru ustayı hızlıca bul, güvenle rezervasyon oluştur. Tek noktadan, şeffaf ve pratik.</p>
+                <div class="hero-badges">
+                    <span class="badge">Onaylı Profesyoneller</span>
+                    <span class="badge">Şeffaf Fiyat</span>
+                    <span class="badge">Hızlı Randevu</span>
+                </div>
+            </div>
+            <div class="hero-card">
+                <strong>Bugün öne çıkan</strong>
+                <p style="margin: 8px 0 0; color: var(--muted);">
+                    Ev temizliği, boya badana ve nakliyat hizmetlerinde yoğun talep var.
+                </p>
+                <a class="btn-card" href="kayit.html">Rezervasyon Oluştur</a>
+            </div>
+        </section>
+
+        <h2 class="section-title">Haftanın Trend Hizmetleri</h2>
+
+        <section class="grid">
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Ev Temizliği</h3>
+                    <div class="meta"><span>👤 9.693 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,6 (423.273 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Boya Badana</h3>
+                    <div class="meta"><span>👤 10.730 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,9 (116.430 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Evden Eve Nakliyat</h3>
+                    <div class="meta"><span>👤 2.930 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,9 (168.732 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Ev Taşıma</h3>
+                    <div class="meta"><span>👤 2.002 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,9 (199.905 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Ev Dekorasyon</h3>
+                    <div class="meta"><span>👤 5.993 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,6 (6.024 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Boş Ev Temizliği</h3>
+                    <div class="meta"><span>👤 5.912 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,6 (436.857 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Elektrik Montaj</h3>
+                    <div class="meta"><span>👤 6.278 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,9 (41.047 onaylı yorum)</span></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media"></div>
+                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+                <div class="card-body">
+                    <h3 class="card-title">Online İngilizce Özel Ders</h3>
+                    <div class="meta"><span>👤 2.999 profesyonel</span></div>
+                    <div class="meta"><span>★ 4,9 (16.616 onaylı yorum)</span></div>
+                </div>
+            </article>
+        </section>
     </div>
 </body>
 </html>
