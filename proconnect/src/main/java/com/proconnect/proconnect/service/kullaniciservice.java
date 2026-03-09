@@ -7,6 +7,7 @@ import com.proconnect.proconnect.repository.kullanicirepository;
 import com.proconnect.util.tcno;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,6 +18,9 @@ public class kullaniciservice {
     @Autowired // Bu işaret, veritabanı deposuna (Repository) giden kablodur
     private kullanicirepository repository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // Garsonun getirdiği siparişi (DTO) alıp, veritabanına uygun (Entity) hale getiren metod
     public kullanici kullaniciKaydet(kaydol request ) {   // burda kaydolmadan request adını çekiyoruz ve kullanıyoruz
         kullanici yeniKullanici = new kullanici();
@@ -24,8 +28,8 @@ public class kullaniciservice {
         yeniKullanici.setSoyad(request.getSoyad());
         yeniKullanici.setEposta(request.getEposta());
         
-        // Şimdilik ham şifreyi yazıyoruz, ilerde buraya şifreleme gelecek
-        yeniKullanici.setSifreHash(request.getSifre()); 
+        // Şifreyi bcrypt ile hashleyip sakla
+        yeniKullanici.setSifreHash(passwordEncoder.encode(request.getSifre()));
         
         if (request.getRol() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol boş bırakılamaz");
