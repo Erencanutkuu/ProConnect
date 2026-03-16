@@ -4,7 +4,8 @@ import com.proconnect.proconnect.dto.kaydol;
 import com.proconnect.proconnect.entity.kullanici;
 import com.proconnect.proconnect.entity.Rol;
 import com.proconnect.proconnect.repository.kullanicirepository;
-import com.proconnect.util.tcno;
+import com.proconnect.proconnect.util.tcno;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

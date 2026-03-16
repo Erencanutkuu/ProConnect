@@ -1,4 +1,4 @@
-package com.proconnect.util;
+package com.proconnect.proconnect.util;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

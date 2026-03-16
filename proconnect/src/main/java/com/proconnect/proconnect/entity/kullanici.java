@@ -3,10 +3,11 @@ package com.proconnect.proconnect.entity;
 import jakarta.persistence.*; // Veritabanı bağlantısı için şart
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data; // Getter/Setter yorgunluğundan kurtarır
 import java.time.LocalDateTime;
 
-import com.proconnect.util.tcno;
+import com.proconnect.proconnect.util.tcno;
 
 @Entity // 1. Bu sınıfın bir tablo olduğunu söyle
 @Table(name = "kullanicilar") // 2. Tablo adını belirle
@@ -29,6 +30,7 @@ public class kullanici {
     private String soyad;
 
     @NotBlank(message = "Şifre boş bırakılamaz") // 10. Şifre boş olamaz
+    @Size(min = 6, message = "Şifre en az 6 karakter olmalıdır") // 11. Şifre en az 6 karakter olmalı
     private String sifreHash;
     
     @Enumerated(EnumType.STRING) // 5. İŞTE O KRİTİK SATIR! Rolü veritabanına metin olarak yaz

@@ -26,3 +26,4 @@ public class kaydol {
 
     private String tcno;
 }  // bu olmasa requestbody iş yapamaz 
+// bunu yapma nedenimiz entity içindeki kullanıcı java içinde ıd vb şeyler oldugu için biz sadece kaydolurken gerekli olan bilgileri almak istiyoruz bu yüzden ayrı bir dto oluşturduk

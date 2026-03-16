@@ -16,7 +16,7 @@ public class kullanicicontroller {
     @Autowired // Spring'e "Bu servisi kullanacağım, lütfen hazırla" demek
     private kullaniciservice service;
 
-    @PostMapping("kaydol") // Adresimiz artık: localhost:8080/kaydol
+    @PostMapping("/kaydol") // Adresimiz artık: localhost:8080/kaydol
     public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için
         return service.kullaniciKaydet(request); // Müşteri olarak kaydet
     }
