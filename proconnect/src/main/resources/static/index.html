@@ -55,6 +55,17 @@
             box-shadow: 0 10px 20px rgba(31, 164, 99, 0.25);
         }
         .btn-kayit:hover { transform: translateY(-2px); }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .btn-outline {
+            background: #ffffff;
+            color: var(--accent-2);
+            border: 2px solid rgba(15, 75, 47, 0.2);
+            box-shadow: none;
+        }
+        .btn-outline:hover {
+            border-color: rgba(15, 75, 47, 0.35);
+            transform: translateY(-2px);
+        }
 
         .wrap {
             max-width: 1200px;
@@ -211,7 +222,10 @@
 <body>
     <div class="navbar">
         <div class="logo">ProConnect</div>
-        <a href="kayit.html" class="btn-kayit">Kayıt Ol</a>
+        <div class="nav-actions">
+            <a href="login.html" class="btn-kayit btn-outline">Giriş Yap</a>
+            <a href="kayit.html" class="btn-kayit">Kayıt Ol</a>
+        </div>
     </div>
 
     <div class="wrap">

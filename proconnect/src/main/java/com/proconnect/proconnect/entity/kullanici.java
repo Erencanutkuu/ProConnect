@@ -8,7 +8,7 @@ import lombok.Data; // Getter/Setter yorgunluğundan kurtarır
 import java.time.LocalDateTime;
 
 import com.proconnect.proconnect.util.tcno;
-
+// ne kaydedebilcegimi belirlemek için entity kullanırız yani kullanıcı adı şifre gibi bilgileri kaydetmek için kullanırız
 @Entity // 1. Bu sınıfın bir tablo olduğunu söyle
 @Table(name = "kullanicilar") // 2. Tablo adını belirle
 @Data 

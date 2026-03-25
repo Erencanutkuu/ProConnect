@@ -8,8 +8,11 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-@RestController // Bu sınıfın dış dünyaya kapı olduğunu söyler
+
+@RestController // Bu sınıfın dış dünyaya kapı olduğunu söyler  // api vb işlemlerini burda yaparız 
 @RequestMapping("/") // İŞTE BURASI! Başına hiçbir şey (api/v1 gibi) yazmadık.
 public class kullanicicontroller {
 
@@ -17,7 +20,13 @@ public class kullanicicontroller {
     private kullaniciservice service;
 
     @PostMapping("/kaydol") // Adresimiz artık: localhost:8080/kaydol
-    public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için
+    public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için  // requestbody ile çekiyoruz valid ise kontrol ediiyor 
         return service.kullaniciKaydet(request); // Müşteri olarak kaydet
     }
+    @PostMapping("/login")
+    public String login(@RequestBody kaydol request) {
+     return service.login(request.getEposta(), request.getSifre());
+
+      }
+    
 }

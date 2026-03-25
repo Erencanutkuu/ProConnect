@@ -50,4 +50,17 @@ public class kullaniciservice {
 
         return repository.save(yeniKullanici); // Ve depocuya (Repository) "Bunu rafa koy" diyoruz
     }
+
+    public String login(String eposta, String sifre) {
+        kullanici kullanici = repository.findAll().stream()
+            .filter(k -> k.getEposta().equals(eposta))
+            .findFirst()
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Geçersiz eposta veya şifre"));
+
+        if (passwordEncoder.matches(sifre, kullanici.getSifreHash())) {
+            return "Giriş başarılı!";
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Geçersiz eposta veya şifre");
+        }
+    }
 }
