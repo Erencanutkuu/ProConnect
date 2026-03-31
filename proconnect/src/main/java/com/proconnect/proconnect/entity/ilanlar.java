@@ -1,0 +1,43 @@
+package com.proconnect.proconnect.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "ilanlar")
+@Data
+public class ilanlar {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String baslik;
+
+    @Column(length = 2000)
+    private String aciklama;
+
+    private BigDecimal butce;
+
+    @Enumerated(EnumType.STRING)
+    private Durum durum;
+
+    private LocalDateTime ilanTarihi;
+
+    // İlanı oluşturan kişi (sadece USTA olmalı - iş kuralı servis katmanında)
+    @ManyToOne
+    @JoinColumn(name = "olusturan_kullanici_id")
+    private kullanici olusturanKullanici;
+
+    // İlanı açan kişi
+    @ManyToOne
+    @JoinColumn(name = "acilan_kullanici_id")
+    private kullanici acilanKullanici;
+}
+
+enum Durum {
+    ACIK,
+    KAPALI
+}
