@@ -5,6 +5,8 @@ import com.proconnect.proconnect.dto.login;
 import com.proconnect.proconnect.entity.kullanici;
 import com.proconnect.proconnect.service.kullaniciservice;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,17 @@ public class kullanicicontroller {
         return service.kullaniciKaydet(request); // Müşteri olarak kaydet
     }
     @PostMapping("/login")
-    public String login(@Valid  @RequestBody login login) {
-     return loginService.login(login.getEposta(), login.getSifre());
+    public String login(@Valid @RequestBody login login, HttpServletResponse response) {
+        String token = loginService.login(login.getEposta(), login.getSifre());
 
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);   // JS erişemez
+        cookie.setSecure(false);    // localhost için false, production'da true yapılacak
+        cookie.setPath("/");        // tüm site için geçerli
+        cookie.setMaxAge(3600);     // 1 saat
+        response.addCookie(cookie);
+
+        return "Giriş başarılı";
       }
     
 }

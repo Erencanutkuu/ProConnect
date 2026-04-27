@@ -24,6 +24,11 @@ public class ilanlar {
     @Enumerated(EnumType.STRING)
     private Durum durum;
 
+    private Double konumLat;
+    private Double konumLng;
+    private String sehir;
+    private String ilce;
+
     private LocalDateTime ilanTarihi;
 
     // İlanı oluşturan kişi (sadece USTA olmalı - iş kuralı servis katmanında)

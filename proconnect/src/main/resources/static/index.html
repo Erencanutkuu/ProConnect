@@ -32,6 +32,14 @@
         </div>
     </div>
 
+    <div id="arama-sonuclari" class="arama-sonuclari" style="display:none;">
+        <div class="wrap">
+            <div id="ai-oneri" class="ai-oneri"></div>
+            <div id="sonuc-grid" class="grid"></div>
+            <p id="sonuc-yok" style="display:none; text-align:center; color:var(--muted);">Sonuç bulunamadı.</p>
+        </div>
+    </div>
+
     <div class="wrap">
         <section class="hero">
             <div>
@@ -169,5 +177,18 @@
             &copy; 2026 ProConnect. Tüm hakları saklıdır.
         </div>
     </footer>
+
+    <div id="cerez-banner" class="cerez-banner" style="display:none;">
+        <div class="cerez-icerik">
+            <i class="fa-solid fa-cookie-bite"></i>
+            <p>Daha iyi bir deneyim için çerezleri ve konum bilgisini kullanıyoruz.</p>
+        </div>
+        <div class="cerez-butonlar">
+            <button onclick="cerezKabulEt()">Kabul Et</button>
+            <button onclick="cerezReddet()" class="cerez-reddet">Reddet</button>
+        </div>
+    </div>
+    <script src="js/cookie-consent.js"></script>
+    <script src="js/arama.js"></script>
 </body>
 </html>
