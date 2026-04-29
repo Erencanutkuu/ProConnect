@@ -27,12 +27,14 @@
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify(veri)
                 });
 
                 if (response.ok) {
-                    document.getElementById('login-mesaj').innerText = "Giriş başarılı!";
+                    document.getElementById('login-mesaj').innerText = "Giriş başarılı! Yönlendiriliyorsunuz...";
                     document.getElementById('login-mesaj').style.color = "green";
+                    setTimeout(function() { window.location.href = 'index.html'; }, 1000);
                 } else {
                     const raw = await response.text();
                     document.getElementById('login-mesaj').innerText = raw || "Giriş başarısız!";

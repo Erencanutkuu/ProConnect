@@ -40,9 +40,10 @@ public class ilanlar {
     @ManyToOne
     @JoinColumn(name = "acilan_kullanici_id")
     private kullanici acilanKullanici;
-}
 
-enum Durum {
-    ACIK,
-    KAPALI
+    @PrePersist
+    protected void onCreate() {
+        if (durum == null) durum = Durum.ACIK;
+        if (ilanTarihi == null) ilanTarihi = LocalDateTime.now();
+    }
 }

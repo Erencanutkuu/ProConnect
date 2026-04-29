@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.proconnect.proconnect.service.loginservice;
+import com.proconnect.proconnect.repository.kullanicirepository;
+import com.proconnect.proconnect.util.jwtutil;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @RestController // Bu sınıfın dış dünyaya kapı olduğunu söyler  // api vb işlemlerini burda yaparız 
@@ -26,6 +31,12 @@ public class kullanicicontroller {
 
     @Autowired
     private loginservice loginService;
+
+    @Autowired
+    private kullanicirepository kullaniciRepository;
+
+    @Autowired
+    private jwtutil jwtUtil;
 
     @PostMapping("/kaydol") // Adresimiz artık: localhost:8080/kaydol
     public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için  // requestbody ile çekiyoruz valid ise kontrol ediiyor 
@@ -44,5 +55,40 @@ public class kullanicicontroller {
 
         return "Giriş başarılı";
       }
-    
+
+    @PostMapping("/cikis")
+    public String cikis(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // Cookie'yi sil
+        response.addCookie(cookie);
+        return "Çıkış yapıldı";
+    }
+
+    @GetMapping("/me")
+    public Map<String, Object> me(@CookieValue(value = "jwt", required = false) String token) {
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+
+        if (token == null || jwtUtil.isTokenExpired(token)) {
+            sonuc.put("girisYapildi", false);
+            return sonuc;
+        }
+
+        String eposta = jwtUtil.extractUsername(token);
+        kullanici k = kullaniciRepository.findByEposta(eposta).orElse(null);
+
+        if (k == null) {
+            sonuc.put("girisYapildi", false);
+            return sonuc;
+        }
+
+        sonuc.put("girisYapildi", true);
+        sonuc.put("ad", k.getAd());
+        sonuc.put("soyad", k.getSoyad());
+        sonuc.put("eposta", k.getEposta());
+        sonuc.put("rol", k.getRol().name());
+        return sonuc;
+    }
+
 }

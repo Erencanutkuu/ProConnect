@@ -30,7 +30,7 @@ public class aramaservice {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     // Ana arama metodu
-    public Map<String, Object> ara(String query, Double userLat, Double userLng) throws Exception {
+    public Map<String, Object> ara(String query, Double userLat, Double userLng, String userSehir) throws Exception {
 
         // 1. OpenAI'a kullanıcının yazdığını gönder, niyetini anla
         Map<String, String> aiSonuc = openaiIleAnaliz(query);
@@ -38,16 +38,31 @@ public class aramaservice {
         String sehir = aiSonuc.get("sehir");
         String oneri = aiSonuc.get("oneri");
 
-        // 2. Veritabanında ara
+        // 2. Veritabanında ara (hem AI kategorisi hem orijinal sorgu ile)
         List<ilanlar> sonuclar;
         if (sehir != null && !sehir.isEmpty()) {
             sonuclar = ilanlarRepository.aramaSehirIle(kategori, sehir);
+            if (sonuclar.isEmpty() && !kategori.equalsIgnoreCase(query)) {
+                sonuclar = ilanlarRepository.aramaSehirIle(query, sehir);
+            }
         } else {
             sonuclar = ilanlarRepository.aramaYap(kategori);
+            if (sonuclar.isEmpty() && !kategori.equalsIgnoreCase(query)) {
+                sonuclar = ilanlarRepository.aramaYap(query);
+            }
         }
 
-        // 3. Kullanıcı konumu varsa yakınlığa göre sırala
-        if (userLat != null && userLng != null) {
+        // 3. Kullanıcı şehri/konumu varsa yakınlığa göre sırala
+        if (userSehir != null && !userSehir.isEmpty()) {
+            String sehirLower = userSehir.toLowerCase();
+            sonuclar.sort(Comparator.comparingInt((ilanlar ilan) -> {
+                String ilanSehir = ilan.getSehir();
+                if (ilanSehir != null && ilanSehir.toLowerCase().contains(sehirLower)) return 0;
+                return 1;
+            }).thenComparingDouble(ilan ->
+                mesafeHesapla(userLat, userLng, ilan.getKonumLat(), ilan.getKonumLng())
+            ));
+        } else if (userLat != null && userLng != null) {
             sonuclar.sort(Comparator.comparingDouble(ilan ->
                 mesafeHesapla(userLat, userLng, ilan.getKonumLat(), ilan.getKonumLng())
             ));

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ProConnect - İlan Oluştur</title>
+    <link rel="stylesheet" href="css/form.css">
+    <style>
+        textarea { display: block; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-family: inherit; resize: vertical; min-height: 80px; }
+        .basarili { color: green; }
+        .hata { color: red; }
+    </style>
+</head>
+<body>
+    <div class="form-container" style="width: 380px;">
+        <h2>İlan Oluştur</h2>
+        <input type="text" id="baslik" placeholder="İlan Başlığı">
+        <textarea id="aciklama" placeholder="Açıklama"></textarea>
+        <input type="number" id="butce" placeholder="Bütçe (₺)">
+        <input type="text" id="sehir" placeholder="Şehir">
+        <input type="text" id="ilce" placeholder="İlçe">
+        <button onclick="ilanOlustur()">İlan Oluştur</button>
+        <p id="mesaj"></p>
+        <a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>
+    </div>
+
+    <script>
+        // Sayfa açılınca giriş kontrolü
+        (async function() {
+            try {
+                const res = await fetch('/me', { credentials: 'include' });
+                const data = await res.json();
+                if (!data.girisYapildi || data.rol !== 'USTA') {
+                    document.querySelector('.form-container').innerHTML =
+                        '<h2>Erişim Engellendi</h2>' +
+                        '<p class="hata">Bu sayfaya sadece usta hesabıyla erişebilirsiniz.</p>' +
+                        '<a href="login.html" class="geri-link">← Giriş Yap</a>' +
+                        '<a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>';
+                }
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        })();
+
+        async function ilanOlustur() {
+            const veri = {
+                baslik: document.getElementById('baslik').value.trim(),
+                aciklama: document.getElementById('aciklama').value.trim(),
+                butce: document.getElementById('butce').value || null,
+                sehir: document.getElementById('sehir').value.trim(),
+                ilce: document.getElementById('ilce').value.trim()
+            };
+
+            if (!veri.baslik || !veri.aciklama) {
+                document.getElementById('mesaj').innerText = 'Başlık ve açıklama zorunludur.';
+                document.getElementById('mesaj').className = 'hata';
+                return;
+            }
+
+            try {
+                const response = await fetch('/ilan/olustur', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(veri)
+                });
+
+                if (response.ok) {
+                    document.getElementById('mesaj').innerText = 'İlan başarıyla oluşturuldu!';
+                    document.getElementById('mesaj').className = 'basarili';
+                    document.getElementById('baslik').value = '';
+                    document.getElementById('aciklama').value = '';
+                    document.getElementById('butce').value = '';
+                    document.getElementById('sehir').value = '';
+                    document.getElementById('ilce').value = '';
+                } else {
+                    const raw = await response.text();
+                    document.getElementById('mesaj').innerText = raw || 'Hata oluştu!';
+                    document.getElementById('mesaj').className = 'hata';
+                }
+            } catch (error) {
+                document.getElementById('mesaj').innerText = 'Sunucuya bağlanılamadı.';
+                document.getElementById('mesaj').className = 'hata';
+            }
+        }
+    </script>
+</body>
+</html>

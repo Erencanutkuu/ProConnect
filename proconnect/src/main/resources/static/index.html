@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ProConnect - Ana Sayfa</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -25,18 +28,13 @@
         <div class="search-banner-overlay"></div>
         <div class="search-banner-content">
             <h2>Aradığın hizmeti hemen bul</h2>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Hangi hizmeti arıyorsun?">
-                <button onclick="hizmetAra()">Ara</button>
+            <div class="search-wrapper">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Hangi hizmeti arıyorsun?">
+                    <button onclick="hizmetAra()">Ara</button>
+                </div>
+                <div id="search-dropdown" class="search-dropdown" style="display:none;"></div>
             </div>
-        </div>
-    </div>
-
-    <div id="arama-sonuclari" class="arama-sonuclari" style="display:none;">
-        <div class="wrap">
-            <div id="ai-oneri" class="ai-oneri"></div>
-            <div id="sonuc-grid" class="grid"></div>
-            <p id="sonuc-yok" style="display:none; text-align:center; color:var(--muted);">Sonuç bulunamadı.</p>
         </div>
     </div>
 
@@ -56,92 +54,30 @@
                 <p style="margin: 8px 0 0; color: var(--muted);">
                     Ev temizliği, boya badana ve nakliyat hizmetlerinde yoğun talep var.
                 </p>
-                <a class="btn-card" href="kayit.html">Rezervasyon Oluştur</a>
+                <a class="btn-card" href="#" onclick="rezervasyonKontrol(event)">Rezervasyon Oluştur</a>
             </div>
         </section>
 
-        <h2 class="section-title">Haftanın Trend Hizmetleri</h2>
+        <h2 class="section-title">Aktif İlanlar</h2>
 
         <section class="grid" id="rezervasyon">
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
+            <article class="card ilan-olustur-card" id="ilan-olustur-card" style="display:none;">
                 <div class="card-body">
-                    <h3 class="card-title">Ev Temizliği</h3>
-                    <div class="meta"><span>👤 9.693 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,6 (423.273 onaylı yorum)</span></div>
+                    <h3 class="card-title"><i class="fa-solid fa-plus-circle"></i> İlan Oluştur</h3>
+                    <input type="text" id="ilan-baslik" placeholder="İlan Başlığı">
+                    <textarea id="ilan-aciklama" placeholder="Açıklama"></textarea>
+                    <input type="number" id="ilan-butce" placeholder="Bütçe (₺)" min="0">
+                    <select id="ilan-sehir" onchange="ilceleriGuncelle()">
+                        <option value="">Şehir Seçin</option>
+                    </select>
+                    <select id="ilan-ilce">
+                        <option value="">Önce şehir seçin</option>
+                    </select>
+                    <button class="ilan-olustur-btn" onclick="ilanOlustur()">Oluştur</button>
+                    <p id="ilan-mesaj"></p>
                 </div>
             </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Boya Badana</h3>
-                    <div class="meta"><span>👤 10.730 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,9 (116.430 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Evden Eve Nakliyat</h3>
-                    <div class="meta"><span>👤 2.930 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,9 (168.732 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Ev Taşıma</h3>
-                    <div class="meta"><span>👤 2.002 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,9 (199.905 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Ev Dekorasyon</h3>
-                    <div class="meta"><span>👤 5.993 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,6 (6.024 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Boş Ev Temizliği</h3>
-                    <div class="meta"><span>👤 5.912 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,6 (436.857 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Elektrik Montaj</h3>
-                    <div class="meta"><span>👤 6.278 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,9 (41.047 onaylı yorum)</span></div>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-media"></div>
-                <div class="card-action"><a class="action-btn" href="kayit.html">Rezervasyon</a></div>
-                <div class="card-body">
-                    <h3 class="card-title">Online İngilizce Özel Ders</h3>
-                    <div class="meta"><span>👤 2.999 profesyonel</span></div>
-                    <div class="meta"><span>★ 4,9 (16.616 onaylı yorum)</span></div>
-                </div>
-            </article>
+            <p id="ilan-yukle" style="text-align:center; color:var(--muted); grid-column: 1/-1;">İlanlar yükleniyor...</p>
         </section>
     </div>
 
@@ -188,6 +124,9 @@
             <button onclick="cerezReddet()" class="cerez-reddet">Reddet</button>
         </div>
     </div>
+    <script src="js/sehirler.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ilan.js"></script>
     <script src="js/cookie-consent.js"></script>
     <script src="js/arama.js"></script>
 </body>

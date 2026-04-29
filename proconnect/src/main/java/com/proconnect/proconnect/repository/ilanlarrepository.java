@@ -22,4 +22,9 @@ public interface ilanlarrepository extends JpaRepository<ilanlar, Long> {
            "LOWER(i.aciklama) LIKE LOWER(CONCAT('%', :arama, '%'))) AND " +
            "LOWER(i.sehir) LIKE LOWER(CONCAT('%', :sehir, '%'))")
     List<ilanlar> aramaSehirIle(@Param("arama") String arama, @Param("sehir") String sehir);
+
+    List<ilanlar> findByOlusturanKullaniciId(Long kullaniciId);
+
+    @Query("SELECT i FROM ilanlar i WHERE i.durum = 'ACIK' ORDER BY i.ilanTarihi DESC")
+    List<ilanlar> tumAktifIlanlar();
 }

@@ -18,7 +18,8 @@ public class aramacontroller {
         String query = (String) body.get("query");
         Double lat = body.get("lat") != null ? ((Number) body.get("lat")).doubleValue() : null;
         Double lng = body.get("lng") != null ? ((Number) body.get("lng")).doubleValue() : null;
+        String sehir = (String) body.get("sehir");
 
-        return aramaService.ara(query, lat, lng);
+        return aramaService.ara(query, lat, lng, sehir);
     }
 }

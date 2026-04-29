@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ProConnect - Profilim</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">ProConnect</div>
+        <nav class="nav-links">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Ana Sayfa</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="login.html" class="btn-kayit btn-outline">Giriş Yap</a>
+        </div>
+    </div>
+
+    <div class="profil-wrap">
+        <div class="profil-header" id="profil-header">
+            <p style="color:var(--muted);">Yükleniyor...</p>
+        </div>
+
+        <h3 class="rezv-baslik" id="rezv-baslik"></h3>
+        <div class="rezv-liste" id="rezv-liste">
+            <p class="bos-mesaj">Yükleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+        let kullaniciBilgi = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const res = await fetch('/me', { credentials: 'include' });
+                const data = await res.json();
+
+                if (!data.girisYapildi) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                kullaniciBilgi = data;
+
+                // Navbar güncelle
+                const navActions = document.querySelector('.nav-actions');
+                navActions.innerHTML =
+                    '<span class="nav-user"><i class="fa-solid fa-user"></i> ' + data.ad + '</span>' +
+                    '<a href="#" class="btn-kayit btn-outline" onclick="cikisYap()">Çıkış Yap</a>';
+
+                // Profil header
+                const basHarf = data.ad.charAt(0).toUpperCase();
+                document.getElementById('profil-header').innerHTML =
+                    '<div class="profil-avatar">' + basHarf + '</div>' +
+                    '<div class="profil-bilgi">' +
+                        '<h2>' + data.ad + ' ' + data.soyad + '</h2>' +
+                        '<p><i class="fa-solid fa-envelope"></i> ' + data.eposta + '</p>' +
+                        '<span class="profil-rol">' + data.rol + '</span>' +
+                    '</div>';
+
+                // Rezervasyonları yükle
+                await rezervasyonlariYukle(data.rol);
+
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function rezervasyonlariYukle(rol) {
+            const baslik = document.getElementById('rezv-baslik');
+            const liste = document.getElementById('rezv-liste');
+
+            const url = rol === 'USTA' ? '/rezervasyon/gelenler' : '/rezervasyon/benimkiler';
+            baslik.textContent = rol === 'USTA' ? 'Gelen Rezervasyonlar' : 'Rezervasyonlarım';
+
+            try {
+                const res = await fetch(url, { credentials: 'include' });
+                const rezler = await res.json();
+
+                if (rezler.length === 0) {
+                    liste.innerHTML = '<p class="bos-mesaj">Henüz rezervasyon bulunmuyor.</p>';
+                    return;
+                }
+
+                liste.innerHTML = rezler.map(function(r) {
+                    const ilanBaslik = r.ilan ? r.ilan.baslik : 'İlan';
+                    const musteriAd = r.musteri ? r.musteri.ad + ' ' + r.musteri.soyad : '';
+                    const tarih = r.olusturulmaTarihi ? new Date(r.olusturulmaTarihi).toLocaleDateString('tr-TR') : '';
+
+                    let aksiyonlar = '';
+                    if (rol === 'USTA' && r.durum === 'BEKLEMEDE') {
+                        aksiyonlar =
+                            '<div class="rezv-aksiyon">' +
+                                '<button class="rezv-btn btn-onayla" onclick="rezvAksiyon(\'onayla\',' + r.id + ')">Onayla</button>' +
+                                '<button class="rezv-btn btn-iptal" onclick="rezvAksiyon(\'iptal\',' + r.id + ')">Reddet</button>' +
+                            '</div>';
+                    } else if (rol === 'USTA' && r.durum === 'ONAYLANDI') {
+                        aksiyonlar =
+                            '<div class="rezv-aksiyon">' +
+                                '<button class="rezv-btn btn-tamamla" onclick="rezvAksiyon(\'tamamla\',' + r.id + ')">Tamamla</button>' +
+                                '<button class="rezv-btn btn-iptal" onclick="rezvAksiyon(\'iptal\',' + r.id + ')">İptal</button>' +
+                            '</div>';
+                    } else if (rol === 'MUSTERI' && (r.durum === 'BEKLEMEDE' || r.durum === 'ONAYLANDI')) {
+                        aksiyonlar =
+                            '<div class="rezv-aksiyon">' +
+                                '<button class="rezv-btn btn-iptal" onclick="rezvAksiyon(\'iptal\',' + r.id + ')">İptal Et</button>' +
+                            '</div>';
+                    }
+
+                    return '<div class="rezv-kart" id="rezv-' + r.id + '">' +
+                        '<div class="rezv-bilgi">' +
+                            '<h4>' + ilanBaslik + '</h4>' +
+                            (rol === 'USTA' && musteriAd ? '<p><i class="fa-solid fa-user"></i> ' + musteriAd + '</p>' : '') +
+                            (tarih ? '<p><i class="fa-solid fa-calendar"></i> ' + tarih + '</p>' : '') +
+                        '</div>' +
+                        '<div style="display:flex;align-items:center;gap:12px;">' +
+                            '<span class="rezv-durum durum-' + r.durum + '">' + durumYazi(r.durum) + '</span>' +
+                            aksiyonlar +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+
+            } catch (e) {
+                liste.innerHTML = '<p class="bos-mesaj" style="color:red;">Rezervasyonlar yüklenemedi.</p>';
+            }
+        }
+
+        function durumYazi(durum) {
+            switch(durum) {
+                case 'BEKLEMEDE': return 'Beklemede';
+                case 'ONAYLANDI': return 'Onaylandı';
+                case 'TAMAMLANDI': return 'Tamamlandı';
+                case 'IPTAL': return 'İptal';
+                default: return durum;
+            }
+        }
+
+        async function rezvAksiyon(aksiyon, id) {
+            try {
+                const res = await fetch('/rezervasyon/' + aksiyon, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ rezervasyonId: id })
+                });
+
+                if (res.ok) {
+                    await rezervasyonlariYukle(kullaniciBilgi.rol);
+                } else {
+                    const raw = await res.text();
+                    alert(raw || 'Hata oluştu');
+                }
+            } catch (e) {
+                alert('Sunucuya bağlanılamadı.');
+            }
+        }
+
+        async function cikisYap() {
+            await fetch('/cikis', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

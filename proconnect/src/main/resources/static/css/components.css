@@ -1,0 +1,156 @@
+/* Search Dropdown */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 6px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+    overflow: hidden;
+    z-index: 100;
+}
+.search-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid #f0f0f0;
+    text-decoration: none;
+    color: var(--ink);
+}
+.search-dropdown .dropdown-item:last-child {
+    border-bottom: none;
+}
+.search-dropdown .dropdown-item:hover {
+    background: #eef7f1;
+}
+.dropdown-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.dropdown-item-left i {
+    color: var(--accent);
+    font-size: 16px;
+}
+.dropdown-item-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+.dropdown-item-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+.dropdown-item-right {
+    font-size: 12px;
+    color: var(--accent-2);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.dropdown-loading {
+    padding: 18px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+.dropdown-empty {
+    padding: 18px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Cerez Banner */
+.cerez-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 26, 20, 0.95);
+    color: #fff;
+    padding: 18px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+.cerez-icerik {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+}
+.cerez-icerik i {
+    font-size: 28px;
+    color: var(--accent);
+}
+.cerez-icerik p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ccc;
+}
+.cerez-butonlar {
+    display: flex;
+    gap: 10px;
+}
+.cerez-butonlar button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.2s ease, background 0.2s ease;
+    background: var(--accent);
+    color: #fff;
+}
+.cerez-butonlar button:hover {
+    transform: translateY(-2px);
+    background: var(--accent-2);
+}
+.cerez-butonlar .cerez-reddet {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #ccc;
+}
+.cerez-butonlar .cerez-reddet:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+}
+
+/* Profil */
+.profil-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+.profil-header { background: var(--card); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin-bottom: 30px; display: flex; align-items: center; gap: 20px; }
+.profil-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-3)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; font-weight: 800; flex-shrink: 0; }
+.profil-bilgi h2 { margin: 0 0 4px; font-size: 22px; }
+.profil-bilgi p { margin: 0; color: var(--muted); font-size: 14px; }
+.profil-rol { display: inline-block; background: #eef7f1; color: var(--accent-2); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; margin-top: 6px; }
+
+/* Rezervasyon Listesi */
+.rezv-baslik { font-size: 20px; font-weight: 800; margin: 0 0 16px; }
+.rezv-liste { display: flex; flex-direction: column; gap: 14px; }
+.rezv-kart { background: var(--card); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.rezv-bilgi h4 { margin: 0 0 4px; font-size: 16px; }
+.rezv-bilgi p { margin: 0; font-size: 13px; color: var(--muted); }
+.rezv-durum { font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+.durum-BEKLEMEDE { background: #fff3cd; color: #856404; }
+.durum-ONAYLANDI { background: #d4edda; color: #155724; }
+.durum-TAMAMLANDI { background: #cce5ff; color: #004085; }
+.durum-IPTAL { background: #f8d7da; color: #721c24; }
+.rezv-aksiyon { display: flex; gap: 8px; flex-wrap: wrap; }
+.rezv-btn { border: none; padding: 7px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
+.rezv-btn:hover { opacity: 0.85; }
+.btn-onayla { background: #28a745; color: #fff; }
+.btn-tamamla { background: #007bff; color: #fff; }
+.btn-iptal { background: #dc3545; color: #fff; }
+.bos-mesaj { text-align: center; color: var(--muted); padding: 40px 0; }
