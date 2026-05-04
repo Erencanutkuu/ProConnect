@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ProConnect - Mesajlar</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .mesaj-container {
+            display: flex;
+            max-width: 1000px;
+            margin: 30px auto;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-height: 70vh;
+            overflow: hidden;
+        }
+        .konusma-panel {
+            width: 320px;
+            min-width: 280px;
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        .konusma-panel h3 {
+            padding: 20px;
+            margin: 0;
+            border-bottom: 1px solid #eee;
+            font-size: 18px;
+        }
+        .konusma-liste {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .konusma-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.15s;
+        }
+        .konusma-item:hover, .konusma-item.aktif {
+            background: #f0f4ff;
+        }
+        .konusma-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .konusma-bilgi {
+            flex: 1;
+            min-width: 0;
+        }
+        .konusma-bilgi h4 {
+            margin: 0;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .konusma-bilgi p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .konusma-badge {
+            background: #dc3545;
+            color: #fff;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .sohbet-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .sohbet-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sohbet-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .sohbet-bos {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 15px;
+        }
+        .sohbet-mesajlar {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .mesaj-balon {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .mesaj-balon.ben {
+            align-self: flex-end;
+            background: #dcf8c6;
+            border-bottom-right-radius: 4px;
+        }
+        .mesaj-balon.karsi {
+            align-self: flex-start;
+            background: #f1f0f0;
+            border-bottom-left-radius: 4px;
+        }
+        .mesaj-balon .mesaj-saat {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            text-align: right;
+        }
+        .sohbet-input-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+        }
+        .sohbet-input-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+        .sohbet-input-bar input:focus {
+            border-color: var(--accent);
+        }
+        .sohbet-input-bar button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sohbet-input-bar button:hover {
+            opacity: 0.9;
+        }
+        @media (max-width: 700px) {
+            .mesaj-container { flex-direction: column; min-height: auto; }
+            .konusma-panel { width: 100%; min-width: auto; border-right: none; border-bottom: 1px solid #eee; max-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">ProConnect</div>
+        <nav class="nav-links">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Ana Sayfa</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="login.html" class="btn-kayit btn-outline">Giris Yap</a>
+        </div>
+    </div>
+
+    <div class="mesaj-container">
+        <div class="konusma-panel">
+            <h3><i class="fa-solid fa-comments"></i> Mesajlar</h3>
+            <div class="konusma-liste" id="konusma-liste">
+                <p style="padding:20px;color:var(--muted);text-align:center;">Yükleniyor...</p>
+            </div>
+        </div>
+        <div class="sohbet-panel" id="sohbet-panel">
+            <div class="sohbet-bos" id="sohbet-bos">
+                <span><i class="fa-solid fa-comment-dots" style="font-size:40px;opacity:0.3;display:block;text-align:center;margin-bottom:12px;"></i>Bir konuşma seçin</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let kullaniciBilgi = null;
+        let aktifPartnerId = null;
+        let mesajYenileSureci = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const res = await fetch('/me', { credentials: 'include' });
+                const data = await res.json();
+                if (!data.girisYapildi) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                kullaniciBilgi = data;
+
+                // Navbar güncelle
+                const navActions = document.querySelector('.nav-actions');
+                navActions.innerHTML =
+                    '<a href="mesajlar.html" class="nav-user" style="position:relative;"><i class="fa-solid fa-envelope"></i> Mesajlar <span id="navbar-badge" style="display:none;"></span></a>' +
+                    '<a href="profil.html" class="nav-user"><i class="fa-solid fa-user"></i> ' + data.ad + '</a>' +
+                    '<a href="#" class="btn-kayit btn-outline" onclick="cikisYap()">Çıkış Yap</a>';
+
+                await konusmalariYukle();
+                okunmamisBadgeGuncelle();
+
+                // URL parametresinden partner ID'si al
+                const params = new URLSearchParams(window.location.search);
+                const pId = params.get('partnerId');
+                if (pId) {
+                    await sohbetAc(parseInt(pId));
+                }
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function konusmalariYukle() {
+            const liste = document.getElementById('konusma-liste');
+            try {
+                const res = await fetch('/mesaj/konusmalar', { credentials: 'include' });
+                const konusmalar = await res.json();
+
+                if (konusmalar.length === 0) {
+                    liste.innerHTML = '<p style="padding:20px;color:var(--muted);text-align:center;">Henüz mesajınız yok.</p>';
+                    return;
+                }
+
+                liste.innerHTML = konusmalar.map(function(k) {
+                    var basHarf = k.partnerAd.charAt(0).toUpperCase();
+                    var sonMesajKisa = k.sonMesaj ? (k.sonMesajBendenMi ? 'Sen: ' : '') + k.sonMesaj.substring(0, 40) : '';
+                    var badgeHtml = k.okunmamis > 0 ? '<span class="konusma-badge">' + k.okunmamis + '</span>' : '';
+                    var aktifCls = aktifPartnerId === k.partnerId ? ' aktif' : '';
+                    return '<div class="konusma-item' + aktifCls + '" onclick="sohbetAc(' + k.partnerId + ')">' +
+                        '<div class="konusma-avatar">' + basHarf + '</div>' +
+                        '<div class="konusma-bilgi">' +
+                            '<h4>' + k.partnerAd + '</h4>' +
+                            '<p>' + sonMesajKisa + '</p>' +
+                        '</div>' +
+                        badgeHtml +
+                    '</div>';
+                }).join('');
+            } catch (e) {
+                liste.innerHTML = '<p style="padding:20px;color:red;text-align:center;">Konuşmalar yüklenemedi.</p>';
+            }
+        }
+
+        async function sohbetAc(partnerId) {
+            aktifPartnerId = partnerId;
+
+            // Konuşma listesinde aktifi işaretle
+            document.querySelectorAll('.konusma-item').forEach(function(el) { el.classList.remove('aktif'); });
+            // Yeniden konuşmaları yükle (aktif işareti için)
+            await konusmalariYukle();
+
+            var panel = document.getElementById('sohbet-panel');
+
+            try {
+                var res = await fetch('/mesaj/oku/' + partnerId, { credentials: 'include' });
+                var mesajlar = await res.json();
+
+                // Partner adını bul
+                var partnerAd = 'Kullanıcı';
+                if (mesajlar.length > 0) {
+                    var ilkMesaj = mesajlar[0];
+                    if (ilkMesaj.gonderen && ilkMesaj.gonderen.eposta !== kullaniciBilgi.eposta) {
+                        partnerAd = ilkMesaj.gonderen.ad + ' ' + ilkMesaj.gonderen.soyad;
+                    } else if (ilkMesaj.alici && ilkMesaj.alici.eposta !== kullaniciBilgi.eposta) {
+                        partnerAd = ilkMesaj.alici.ad + ' ' + ilkMesaj.alici.soyad;
+                    }
+                }
+
+                var mesajlarHtml = mesajlar.map(function(m) {
+                    var benMi = m.gonderen && m.gonderen.eposta === kullaniciBilgi.eposta;
+                    var saat = m.tarih ? new Date(m.tarih).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
+                    return '<div class="mesaj-balon ' + (benMi ? 'ben' : 'karsi') + '">' +
+                        m.mesajMetni +
+                        '<span class="mesaj-saat">' + saat + '</span>' +
+                    '</div>';
+                }).join('');
+
+                panel.innerHTML =
+                    '<div class="sohbet-header">' +
+                        '<div class="konusma-avatar" style="width:36px;height:36px;font-size:15px;">' + partnerAd.charAt(0).toUpperCase() + '</div>' +
+                        '<h3>' + partnerAd + '</h3>' +
+                    '</div>' +
+                    '<div class="sohbet-mesajlar" id="sohbet-mesajlar">' +
+                        (mesajlarHtml || '<p style="text-align:center;color:var(--muted);margin:auto;">Henüz mesaj yok. İlk mesajı gönderin!</p>') +
+                    '</div>' +
+                    '<div class="sohbet-input-bar">' +
+                        '<input type="text" id="mesaj-input" placeholder="Mesajınızı yazın..." onkeydown="if(event.key===\'Enter\') mesajGonder()">' +
+                        '<button onclick="mesajGonder()"><i class="fa-solid fa-paper-plane"></i></button>' +
+                    '</div>';
+
+                // Scroll aşağıya
+                var mesajDiv = document.getElementById('sohbet-mesajlar');
+                if (mesajDiv) mesajDiv.scrollTop = mesajDiv.scrollHeight;
+
+                // Badge güncelle
+                okunmamisBadgeGuncelle();
+
+                // Otomatik yenileme
+                if (mesajYenileSureci) clearInterval(mesajYenileSureci);
+                mesajYenileSureci = setInterval(function() {
+                    if (aktifPartnerId === partnerId) sohbetYenile(partnerId);
+                }, 5000);
+
+            } catch (e) {
+                panel.innerHTML = '<div class="sohbet-bos"><span style="color:red;">Mesajlar yüklenemedi.</span></div>';
+            }
+        }
+
+        async function sohbetYenile(partnerId) {
+            try {
+                var res = await fetch('/mesaj/oku/' + partnerId, { credentials: 'include' });
+                var mesajlar = await res.json();
+                var mesajDiv = document.getElementById('sohbet-mesajlar');
+                if (!mesajDiv) return;
+
+                var eskiScrollTop = mesajDiv.scrollTop;
+                var eskiScrollHeight = mesajDiv.scrollHeight;
+                var altaMi = (eskiScrollHeight - mesajDiv.clientHeight - eskiScrollTop) < 50;
+
+                mesajDiv.innerHTML = mesajlar.map(function(m) {
+                    var benMi = m.gonderen && m.gonderen.eposta === kullaniciBilgi.eposta;
+                    var saat = m.tarih ? new Date(m.tarih).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
+                    return '<div class="mesaj-balon ' + (benMi ? 'ben' : 'karsi') + '">' +
+                        m.mesajMetni +
+                        '<span class="mesaj-saat">' + saat + '</span>' +
+                    '</div>';
+                }).join('') || '<p style="text-align:center;color:var(--muted);margin:auto;">Henüz mesaj yok.</p>';
+
+                if (altaMi) mesajDiv.scrollTop = mesajDiv.scrollHeight;
+
+                // Konuşma listesini de güncelle
+                konusmalariYukle();
+                okunmamisBadgeGuncelle();
+            } catch (e) {}
+        }
+
+        async function mesajGonder() {
+            if (!aktifPartnerId) return;
+            var input = document.getElementById('mesaj-input');
+            var metin = input.value.trim();
+            if (!metin) return;
+
+            input.value = '';
+
+            try {
+                var res = await fetch('/mesaj/gonder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ aliciId: aktifPartnerId, mesajMetni: metin })
+                });
+
+                if (res.ok) {
+                    await sohbetYenile(aktifPartnerId);
+                    var mesajDiv = document.getElementById('sohbet-mesajlar');
+                    if (mesajDiv) mesajDiv.scrollTop = mesajDiv.scrollHeight;
+                    await konusmalariYukle();
+                } else {
+                    var data = await res.text();
+                    alert(data || 'Mesaj gönderilemedi.');
+                }
+            } catch (e) {
+                alert('Sunucuya bağlanılamadı.');
+            }
+        }
+
+        async function okunmamisBadgeGuncelle() {
+            try {
+                var res = await fetch('/mesaj/okunmamis-sayisi', { credentials: 'include' });
+                var data = await res.json();
+                var badge = document.getElementById('navbar-badge');
+                if (badge) {
+                    if (data.sayi > 0) {
+                        badge.textContent = data.sayi;
+                        badge.style.display = 'inline-block';
+                        badge.style.cssText = 'background:#dc3545;color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700;margin-left:4px;';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function cikisYap() {
+            await fetch('/cikis', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

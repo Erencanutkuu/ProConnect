@@ -31,6 +31,7 @@ public class kullaniciservice {
         yeniKullanici.setAd(request.getAd());
         yeniKullanici.setSoyad(request.getSoyad());
         yeniKullanici.setEposta(request.getEposta());
+        yeniKullanici.setTelefon(request.getTelefon());
         
         // Şifreyi bcrypt ile hashleyip sakla
         yeniKullanici.setSifreHash(passwordEncoder.encode(request.getSifre()));
@@ -61,6 +62,35 @@ public class kullaniciservice {
         }
 
         return kaydedilen;
+    }
+
+    // Profil güncelle (ad, soyad, telefon)
+    public kullanici profilGuncelle(String eposta, String ad, String soyad, String telefon) {
+        kullanici k = repository.findByEposta(eposta)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
+
+        if (StringUtils.hasText(ad)) k.setAd(ad);
+        if (StringUtils.hasText(soyad)) k.setSoyad(soyad);
+        if (telefon != null) k.setTelefon(telefon);
+
+        return repository.save(k);
+    }
+
+    // Şifre değiştir
+    public void sifreDegistir(String eposta, String mevcutSifre, String yeniSifre) {
+        kullanici k = repository.findByEposta(eposta)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
+
+        if (!passwordEncoder.matches(mevcutSifre, k.getSifreHash())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mevcut şifre hatalı");
+        }
+
+        if (yeniSifre == null || yeniSifre.length() < 6) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Yeni şifre en az 6 karakter olmalıdır");
+        }
+
+        k.setSifreHash(passwordEncoder.encode(yeniSifre));
+        repository.save(k);
     }
 
 }

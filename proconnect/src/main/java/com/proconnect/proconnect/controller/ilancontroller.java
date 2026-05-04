@@ -1,12 +1,16 @@
 package com.proconnect.proconnect.controller;
 
 import com.proconnect.proconnect.entity.ilanlar;
+import com.proconnect.proconnect.service.GorselService;
 import com.proconnect.proconnect.service.ilanservice;
 import com.proconnect.proconnect.util.jwtutil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -25,6 +29,9 @@ public class ilancontroller {
 
     @Autowired
     private jwtutil jwtUtil;
+
+    @Autowired
+    private GorselService gorselService;
 
     @PostMapping(value = "/olustur", consumes = {"multipart/form-data"})
     public ilanlar olustur(
@@ -63,6 +70,11 @@ public class ilancontroller {
             }
         }
 
+        // Gorsel yuklenmemisse AI ile uret
+        if (gorselYolu == null) {
+            gorselYolu = gorselService.gorselUret(baslik, aciklama);
+        }
+
         return ilanService.olustur(
             eposta,
             baslik,
@@ -88,5 +100,33 @@ public class ilancontroller {
     public List<ilanlar> benimkiler(@CookieValue("jwt") String token) {
         String eposta = jwtUtil.extractUsername(token);
         return ilanService.benimIlanlarim(eposta);
+    }
+
+    @DeleteMapping("/sil/{id}")
+    public Map<String, String> ilanSil(@CookieValue("jwt") String token, @PathVariable("id") Long id) {
+        String eposta = jwtUtil.extractUsername(token);
+        ilanService.ilanSil(eposta, id);
+        return Map.of("mesaj", "İlan silindi");
+    }
+
+    @PutMapping("/guncelle/{id}")
+    public Map<String, Object> ilanGuncelle(
+            @CookieValue("jwt") String token,
+            @PathVariable("id") Long id,
+            @RequestBody Map<String, Object> body) {
+        String eposta = jwtUtil.extractUsername(token);
+
+        String baslik = (String) body.get("baslik");
+        String aciklama = (String) body.get("aciklama");
+        BigDecimal butce = body.get("butce") != null ? new BigDecimal(body.get("butce").toString()) : null;
+        String sehir = (String) body.get("sehir");
+        String ilce = (String) body.get("ilce");
+
+        ilanService.ilanGuncelle(eposta, id, baslik, aciklama, butce, sehir, ilce);
+
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+        sonuc.put("basarili", true);
+        sonuc.put("mesaj", "İlan güncellendi");
+        return sonuc;
     }
 }

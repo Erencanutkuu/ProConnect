@@ -46,7 +46,7 @@ public class EpostaService {
         kullanici k = kullaniciRepository.findByEposta(eposta)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanici bulunamadi"));
 
-        if (k.isEpostaDogrulandi()) {
+        if (Boolean.TRUE.equals(k.getEpostaDogrulandi())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-posta zaten dogrulandi");
         }
 
@@ -72,7 +72,7 @@ public class EpostaService {
         kullanici k = kullaniciRepository.findByEposta(eposta)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanici bulunamadi"));
 
-        if (k.isEpostaDogrulandi()) {
+        if (Boolean.TRUE.equals(k.getEpostaDogrulandi())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-posta zaten dogrulandi");
         }
 

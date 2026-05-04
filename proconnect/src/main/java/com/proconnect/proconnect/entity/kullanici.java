@@ -33,6 +33,8 @@ public class kullanici {
     @Size(min = 6, message = "Şifre en az 6 karakter olmalıdır") // 11. Şifre en az 6 karakter olmalı
     private String sifreHash;
     
+    private String telefon;
+    
     @Enumerated(EnumType.STRING) // 5. İŞTE O KRİTİK SATIR! Rolü veritabanına metin olarak yaz
     private Rol rol;
 
@@ -42,7 +44,7 @@ public class kullanici {
     private LocalDateTime olusturulmaTarihi;
 
     // E-posta dogrulama
-    private boolean epostaDogrulandi = false;
+    private Boolean epostaDogrulandi = false;
     private String epostaDogrulamaKodu;
     private LocalDateTime kodGonderimZamani;
 

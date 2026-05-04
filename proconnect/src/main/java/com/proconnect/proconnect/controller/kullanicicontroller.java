@@ -89,11 +89,14 @@ public class kullanicicontroller {
         }
 
         sonuc.put("girisYapildi", true);
+        sonuc.put("id", k.getId());
         sonuc.put("ad", k.getAd());
         sonuc.put("soyad", k.getSoyad());
         sonuc.put("eposta", k.getEposta());
+        sonuc.put("telefon", k.getTelefon());
+        sonuc.put("olusturulmaTarihi", k.getOlusturulmaTarihi());
         sonuc.put("rol", k.getRol().name());
-        sonuc.put("epostaDogrulandi", k.isEpostaDogrulandi());
+        sonuc.put("epostaDogrulandi", Boolean.TRUE.equals(k.getEpostaDogrulandi()));
         if (k.getRol() == Rol.USTA) {
             sonuc.put("belgeYuklendi", k.getBelgeYolu() != null && !k.getBelgeYolu().isBlank());
         }
@@ -125,6 +128,35 @@ public class kullanicicontroller {
 
         Map<String, String> sonuc = new LinkedHashMap<>();
         sonuc.put("mesaj", "Dogrulama kodu tekrar gonderildi");
+        return sonuc;
+    }
+
+    @PutMapping("/profil-guncelle")
+    public Map<String, Object> profilGuncelle(
+            @CookieValue("jwt") String token,
+            @RequestBody Map<String, String> body) {
+        String eposta = jwtUtil.extractUsername(token);
+        kullanici k = service.profilGuncelle(eposta, body.get("ad"), body.get("soyad"), body.get("telefon"));
+
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+        sonuc.put("basarili", true);
+        sonuc.put("mesaj", "Profil güncellendi");
+        sonuc.put("ad", k.getAd());
+        sonuc.put("soyad", k.getSoyad());
+        sonuc.put("telefon", k.getTelefon());
+        return sonuc;
+    }
+
+    @PostMapping("/sifre-degistir")
+    public Map<String, Object> sifreDegistir(
+            @CookieValue("jwt") String token,
+            @RequestBody Map<String, String> body) {
+        String eposta = jwtUtil.extractUsername(token);
+        service.sifreDegistir(eposta, body.get("mevcutSifre"), body.get("yeniSifre"));
+
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+        sonuc.put("basarili", true);
+        sonuc.put("mesaj", "Şifre başarıyla değiştirildi");
         return sonuc;
     }
 

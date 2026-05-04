@@ -37,7 +37,7 @@ public class ilanservice {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sadece ustalar ilan oluşturabilir");
         }
 
-        if (!usta.isEpostaDogrulandi()) {
+        if (!Boolean.TRUE.equals(usta.getEpostaDogrulandi())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ilan olusturmak icin e-postanizi dogrulayin");
         }
 
@@ -96,10 +96,47 @@ public class ilanservice {
         return R * c;
     }
 
+    // Ilan sil (sadece kendi ilani)
+    public void ilanSil(String eposta, Long ilanId) {
+        kullanici usta = kullaniciRepository.findByEposta(eposta)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
+
+        ilanlar ilan = ilanlarRepository.findById(ilanId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "İlan bulunamadı"));
+
+        if (!ilan.getOlusturanKullanici().getId().equals(usta.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sadece kendi ilanınızı silebilirsiniz");
+        }
+
+        ilanlarRepository.delete(ilan);
+    }
+
     // Ustanın kendi ilanları
     public List<ilanlar> benimIlanlarim(String eposta) {
         kullanici usta = kullaniciRepository.findByEposta(eposta)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
         return ilanlarRepository.findByOlusturanKullaniciId(usta.getId());
+    }
+
+    // İlan güncelle (sadece kendi ilanı)
+    public ilanlar ilanGuncelle(String eposta, Long ilanId, String baslik, String aciklama,
+                                BigDecimal butce, String sehir, String ilce) {
+        kullanici usta = kullaniciRepository.findByEposta(eposta)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
+
+        ilanlar ilan = ilanlarRepository.findById(ilanId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "İlan bulunamadı"));
+
+        if (!ilan.getOlusturanKullanici().getId().equals(usta.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sadece kendi ilanınızı güncelleyebilirsiniz");
+        }
+
+        if (baslik != null && !baslik.isBlank()) ilan.setBaslik(baslik);
+        if (aciklama != null && !aciklama.isBlank()) ilan.setAciklama(aciklama);
+        if (butce != null) ilan.setButce(butce);
+        if (sehir != null) ilan.setSehir(sehir);
+        if (ilce != null) ilan.setIlce(ilce);
+
+        return ilanlarRepository.save(ilan);
     }
 }

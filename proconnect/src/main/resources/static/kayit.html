@@ -11,6 +11,7 @@
         <input type="text" id="ad" placeholder="Ad">
         <input type="text" id="soyad" placeholder="Soyad">
         <input type="email" id="eposta" placeholder="E-posta">
+        <input type="tel" id="telefon" placeholder="Telefon Numarası">
         <input type="password" id="sifre" placeholder="Şifre">
         <div id="password-strength-container" class="password-strength-container">
             <div id="password-strength-bar" class="password-strength-bar"></div>
@@ -95,6 +96,7 @@
                 ad: document.getElementById('ad').value.trim(),
                 soyad: document.getElementById('soyad').value.trim(),
                 eposta: document.getElementById('eposta').value.trim(),
+                telefon: document.getElementById('telefon').value.trim(),
                 sifre: sifre,
                 rol: rol,
                 tcno: rol === 'USTA' ? document.getElementById('tcno').value.trim() : null

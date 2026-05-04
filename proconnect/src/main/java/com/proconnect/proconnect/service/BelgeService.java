@@ -39,7 +39,7 @@ public class BelgeService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sadece ustalar belge yukleyebilir");
         }
 
-        if (!k.isEpostaDogrulandi()) {
+        if (!Boolean.TRUE.equals(k.getEpostaDogrulandi())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Once e-postanizi dogrulayin");
         }
 

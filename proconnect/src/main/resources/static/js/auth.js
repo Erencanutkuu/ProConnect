@@ -1,5 +1,6 @@
 let girisYapildi = false;
 window.aktifKullaniciEposta = null;
+window.aktifKullaniciRol = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
@@ -11,10 +12,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (data.girisYapildi) {
             girisYapildi = true;
             window.aktifKullaniciEposta = data.eposta;
+            window.aktifKullaniciRol = data.rol;
             if (navActions) {
                 navActions.innerHTML =
+                    '<a href="mesajlar.html" class="nav-user" style="position:relative;"><i class="fa-solid fa-envelope"></i> Mesajlar <span id="mesaj-badge" style="display:none;background:#dc3545;color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700;margin-left:2px;"></span></a>' +
                     '<a href="profil.html" class="nav-user"><i class="fa-solid fa-user"></i> ' + data.ad + '</a>' +
                     '<a href="#" class="btn-kayit btn-outline" onclick="cikisYap()">Çıkış Yap</a>';
+
+                // Okunmamış mesaj sayısını al
+                mesajBadgeGuncelle();
             }
 
             if (data.rol === 'USTA') {
@@ -47,6 +53,22 @@ function ustaUyariGoster(mesaj) {
     uyari.style.cssText = 'grid-column: 1/-1; background: #fff3cd; border: 1px solid #ffc107; padding: 16px; border-radius: 8px; text-align: center; color: #856404; font-weight: 500;';
     uyari.textContent = mesaj;
     grid.insertBefore(uyari, grid.firstChild);
+}
+
+async function mesajBadgeGuncelle() {
+    try {
+        var res = await fetch('/mesaj/okunmamis-sayisi', { credentials: 'include' });
+        var data = await res.json();
+        var badge = document.getElementById('mesaj-badge');
+        if (badge) {
+            if (data.sayi > 0) {
+                badge.textContent = data.sayi;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    } catch (e) {}
 }
 
 async function cikisYap() {

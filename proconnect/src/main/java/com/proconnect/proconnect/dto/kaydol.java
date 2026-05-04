@@ -18,6 +18,8 @@ public class kaydol {
     @Email(message = "Geçersiz e-posta formatı")
     private String eposta;
 
+    private String telefon;
+
     @NotBlank(message = "Şifre boş bırakılamaz")
     private String sifre; // Bu ham şifredir, veritabanına böyle gitmeyecek!
 
