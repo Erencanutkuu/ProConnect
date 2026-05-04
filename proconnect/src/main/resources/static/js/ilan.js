@@ -2,6 +2,10 @@ let kullaniciLat = null;
 let kullaniciLng = null;
 let kullaniciSehir = null;
 
+function getFavorilerKey() {
+    return window.aktifKullaniciEposta ? 'favoriler_' + window.aktifKullaniciEposta : 'favoriler_anon';
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Konum al ve şehir tespit et
     if (navigator.geolocation && localStorage.getItem('cerezOnay') === 'kabul') {
@@ -21,8 +25,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    ilanlariYukle();
     sehirleriYukle();
+});
+
+window.addEventListener('authLoaded', function() {
+    ilanlariYukle();
 });
 
 async function ilanlariYukle() {
@@ -61,8 +68,21 @@ async function ilanlariYukle() {
                 ? ilan.olusturanKullanici.ad + ' ' + ilan.olusturanKullanici.soyad
                 : '';
 
+            let isFavori = false;
+            try {
+                const favs = JSON.parse(localStorage.getItem(getFavorilerKey()) || '[]');
+                isFavori = favs.includes(ilan.id);
+            } catch(e){}
+
+            const cardMediaHtml = ilan.gorselYolu 
+                ? '<div class="card-media" style="background: url(\'/uploads/' + ilan.gorselYolu + '\') center/cover no-repeat;"></div>'
+                : '<div class="card-media"></div>';
+
             const html = '<article class="card" data-ilan-id="' + ilan.id + '">' +
-                '<div class="card-media"></div>' +
+                '<div class="favorite-icon ' + (isFavori ? 'active' : '') + '" onclick="toggleFavori(event, ' + ilan.id + ')" title="Favoriye Ekle/Çıkar">' +
+                    '<i class="' + (isFavori ? 'fa-solid' : 'fa-regular') + ' fa-heart"></i>' +
+                '</div>' +
+                cardMediaHtml +
                 '<div class="card-action">' +
                     '<a class="action-btn" href="#" onclick="rezervasyonYap(event, ' + ilan.id + ')">Rezervasyon</a>' +
                 '</div>' +
@@ -83,30 +103,40 @@ async function ilanlariYukle() {
 }
 
 async function ilanOlustur() {
-    const veri = {
-        baslik: document.getElementById('ilan-baslik').value.trim(),
-        aciklama: document.getElementById('ilan-aciklama').value.trim(),
-        butce: document.getElementById('ilan-butce').value || null,
-        sehir: document.getElementById('ilan-sehir').value.trim(),
-        ilce: document.getElementById('ilan-ilce').value.trim(),
-        konumLat: kullaniciLat,
-        konumLng: kullaniciLng
-    };
+    const baslik = document.getElementById('ilan-baslik').value.trim();
+    const aciklama = document.getElementById('ilan-aciklama').value.trim();
+    const butce = document.getElementById('ilan-butce').value || null;
+    const sehir = document.getElementById('ilan-sehir').value.trim();
+    const ilce = document.getElementById('ilan-ilce').value.trim();
+    const gorselInput = document.getElementById('ilan-gorsel');
 
     const mesajEl = document.getElementById('ilan-mesaj');
 
-    if (!veri.baslik || !veri.aciklama) {
+    if (!baslik || !aciklama) {
         mesajEl.textContent = 'Başlık ve açıklama zorunludur.';
         mesajEl.style.color = 'red';
         return;
     }
 
+    const formData = new FormData();
+    formData.append('baslik', baslik);
+    formData.append('aciklama', aciklama);
+    if (butce) formData.append('butce', butce);
+    if (sehir) formData.append('sehir', sehir);
+    if (ilce) formData.append('ilce', ilce);
+    if (kullaniciLat) formData.append('konumLat', kullaniciLat);
+    if (kullaniciLng) formData.append('konumLng', kullaniciLng);
+
+    if (gorselInput && gorselInput.files.length > 0) {
+        formData.append('gorsel', gorselInput.files[0]);
+    }
+
     try {
         const response = await fetch('/ilan/olustur', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // FormData kullanırken Content-Type belirtilmez (tarayıcı boundary ile ayarlar)
             credentials: 'include',
-            body: JSON.stringify(veri)
+            body: formData
         });
 
         if (response.ok) {
@@ -117,6 +147,7 @@ async function ilanOlustur() {
             document.getElementById('ilan-butce').value = '';
             document.getElementById('ilan-sehir').value = '';
             document.getElementById('ilan-ilce').value = '';
+            if (document.getElementById('ilan-gorsel')) document.getElementById('ilan-gorsel').value = '';
             // yeni ilanı sayfaya ekle
             ilanlariYukle();
         } else {
@@ -203,4 +234,34 @@ async function rezervasyonYap(event, ilanId) {
     } catch (error) {
         alert('Sunucuya bağlanılamadı.');
     }
+}
+
+function toggleFavori(event, ilanId) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const iconDiv = event.currentTarget;
+    const icon = iconDiv.querySelector('i');
+    
+    let favs = [];
+    try {
+        favs = JSON.parse(localStorage.getItem(getFavorilerKey()) || '[]');
+    } catch(e) {}
+    
+    const index = favs.indexOf(ilanId);
+    if (index > -1) {
+        // Favorilerden cikar
+        favs.splice(index, 1);
+        iconDiv.classList.remove('active');
+        icon.classList.remove('fa-solid');
+        icon.classList.add('fa-regular');
+    } else {
+        // Favorilere ekle
+        favs.push(ilanId);
+        iconDiv.classList.add('active');
+        icon.classList.remove('fa-regular');
+        icon.classList.add('fa-solid');
+    }
+    
+    localStorage.setItem(getFavorilerKey(), JSON.stringify(favs));
 }

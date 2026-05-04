@@ -1,4 +1,5 @@
 let girisYapildi = false;
+window.aktifKullaniciEposta = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
@@ -6,26 +7,49 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = await response.json();
 
         const navActions = document.querySelector('.nav-actions');
-        if (!navActions) return;
 
         if (data.girisYapildi) {
             girisYapildi = true;
-            navActions.innerHTML =
-                '<a href="profil.html" class="nav-user"><i class="fa-solid fa-user"></i> ' + data.ad + '</a>' +
-                '<a href="#" class="btn-kayit btn-outline" onclick="cikisYap()">Çıkış Yap</a>';
+            window.aktifKullaniciEposta = data.eposta;
+            if (navActions) {
+                navActions.innerHTML =
+                    '<a href="profil.html" class="nav-user"><i class="fa-solid fa-user"></i> ' + data.ad + '</a>' +
+                    '<a href="#" class="btn-kayit btn-outline" onclick="cikisYap()">Çıkış Yap</a>';
+            }
 
             if (data.rol === 'USTA') {
-                var ilanCard = document.getElementById('ilan-olustur-card');
-                if (ilanCard) ilanCard.style.display = '';
+                if (!data.epostaDogrulandi) {
+                    ustaUyariGoster('E-postanizi dogrulayin. Profilinizden dogrulama yapabilirsiniz.');
+                } else if (!data.belgeYuklendi) {
+                    ustaUyariGoster('Ilan olusturabilmek icin profilinizden belgenizi yukleyin.');
+                } else {
+                    // E-posta dogrulandi + belge yuklendi = ilan olusturabilir
+                    var ilanCard = document.getElementById('ilan-olustur-card');
+                    if (ilanCard) ilanCard.style.display = '';
+                }
             }
         }
+        window.dispatchEvent(new Event('authLoaded'));
     } catch (e) {
-        // sessizce geç
+        window.dispatchEvent(new Event('authLoaded'));
     }
 });
+
+function ustaUyariGoster(mesaj) {
+    var grid = document.querySelector('.grid');
+    if (!grid) return;
+
+    var mevcutUyari = document.getElementById('usta-uyari');
+    if (mevcutUyari) mevcutUyari.remove();
+
+    var uyari = document.createElement('div');
+    uyari.id = 'usta-uyari';
+    uyari.style.cssText = 'grid-column: 1/-1; background: #fff3cd; border: 1px solid #ffc107; padding: 16px; border-radius: 8px; text-align: center; color: #856404; font-weight: 500;';
+    uyari.textContent = mesaj;
+    grid.insertBefore(uyari, grid.firstChild);
+}
 
 async function cikisYap() {
     await fetch('/cikis', { method: 'POST', credentials: 'include' });
     window.location.href = 'index.html';
 }
-

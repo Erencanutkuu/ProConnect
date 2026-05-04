@@ -30,6 +30,7 @@ public class ilanlar {
     private String ilce;
 
     private LocalDateTime ilanTarihi;
+    private String gorselYolu;
 
     // İlanı oluşturan kişi (sadece USTA olmalı - iş kuralı servis katmanında)
     @ManyToOne

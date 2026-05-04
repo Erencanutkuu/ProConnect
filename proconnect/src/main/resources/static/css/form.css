@@ -6,3 +6,11 @@ button { width: 100%; padding: 10px; background: #28a745; color: white; border: 
 
 /* TC Kimlik alanini baslangicta gizlemek icin */
 #usta-ozel-alanlar { display: none; transition: 0.3s; }
+
+/* Sifre Guc Bari Stilleri */
+.password-strength-container { width: 100%; height: 5px; background: #eee; border-radius: 3px; margin-top: -5px; margin-bottom: 10px; overflow: hidden; display: none; }
+.password-strength-bar { height: 100%; width: 0; transition: width 0.3s, background-color 0.3s; }
+.strength-weak { background-color: #dc3545; width: 33%; }
+.strength-medium { background-color: #ffc107; width: 66%; }
+.strength-strong { background-color: #28a745; width: 100%; }
+.password-hint { font-size: 11px; color: #666; margin-top: -5px; margin-bottom: 10px; display: none; }

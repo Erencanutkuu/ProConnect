@@ -12,7 +12,10 @@
         <input type="text" id="soyad" placeholder="Soyad">
         <input type="email" id="eposta" placeholder="E-posta">
         <input type="password" id="sifre" placeholder="Şifre">
-        
+        <div id="password-strength-container" class="password-strength-container">
+            <div id="password-strength-bar" class="password-strength-bar"></div>
+        </div>
+        <div id="password-hint" class="password-hint">Şifreniz en az 6 karakter olmalıdır.</div>
         <select id="rol" onchange="rolDegisti()">
             <option value="MUSTERI">Müşteri</option>
             <option value="USTA">Usta</option>
@@ -24,45 +27,83 @@
 
         <button onclick="kayitOl()">Kaydet</button>
         <p id="mesaj"></p>
-        <a href="login.html" class="geri-link">← Giriş Yap</a>
-        <a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>
+        <a href="login.html" class="geri-link">&larr; Giriş Yap</a>
+        <a href="index.html" class="geri-link">&larr; Ana Sayfaya Dön</a>
     </div>
 
     <script>
-        // Rol değiştiğinde TC alanını göster/gizle
         function rolDegisti() {
             const rol = document.getElementById('rol').value;
             const ustaAlani = document.getElementById('usta-ozel-alanlar');
-            
             if (rol === 'USTA') {
                 ustaAlani.style.display = 'block';
             } else {
                 ustaAlani.style.display = 'none';
-                document.getElementById('tcno').value = ''; // Müşteriye dönülürse içeriği temizle
+                document.getElementById('tcno').value = '';
             }
         }
 
+        document.getElementById('sifre').addEventListener('input', function(e) {
+            const val = e.target.value;
+            const container = document.getElementById('password-strength-container');
+            const bar = document.getElementById('password-strength-bar');
+            const hint = document.getElementById('password-hint');
+
+            if (val.length > 0) {
+                container.style.display = 'block';
+                hint.style.display = 'block';
+                
+                bar.className = 'password-strength-bar'; // reset
+                if (val.length < 6) {
+                    bar.classList.add('strength-weak');
+                    hint.innerText = "Zayıf: Şifreniz en az 6 karakter olmalıdır.";
+                } else if (val.length >= 6 && val.length < 10) {
+                    if (/[0-9]/.test(val) && /[a-zA-Z]/.test(val)) {
+                        bar.classList.add('strength-medium');
+                        hint.innerText = "Orta: Daha güçlü bir şifre için özel karakter kullanın.";
+                    } else {
+                        bar.classList.add('strength-weak');
+                        hint.innerText = "Zayıf: Harf ve rakamları karıştırın.";
+                    }
+                } else {
+                    if (/[0-9]/.test(val) && /[a-zA-Z]/.test(val) && /[^a-zA-Z0-9]/.test(val)) {
+                        bar.classList.add('strength-strong');
+                        hint.innerText = "Güçlü: Harika bir şifre!";
+                    } else {
+                        bar.classList.add('strength-medium');
+                        hint.innerText = "Orta: Daha güçlü bir şifre için özel karakter kullanın.";
+                    }
+                }
+            } else {
+                container.style.display = 'none';
+                hint.style.display = 'none';
+            }
+        });
+
         async function kayitOl() {
-            const rol = document.getElementById('rol').value;
+            const bar = document.getElementById('password-strength-bar');
+            const sifre = document.getElementById('sifre').value.trim();
             
+            if (!sifre || !bar.classList.contains('strength-strong')) {
+                document.getElementById('mesaj').innerText = "Kayıt olabilmek için şifrenizin yeterince güçlü (yeşil) olması gerekmektedir.";
+                document.getElementById('mesaj').style.color = "red";
+                return;
+            }
+
+            const rol = document.getElementById('rol').value;
             const veri = {
                 ad: document.getElementById('ad').value.trim(),
                 soyad: document.getElementById('soyad').value.trim(),
                 eposta: document.getElementById('eposta').value.trim(),
-                sifre: document.getElementById('sifre').value.trim(),
+                sifre: sifre,
                 rol: rol,
-                // Eğer usta seçiliyse TC'yi al, değilse boş gönder veya hiç gönderme
                 tcno: rol === 'USTA' ? document.getElementById('tcno').value.trim() : null
-                
             };
-            console.log(veri);
 
-            // Basit bir doğrulama: Usta seçiliyse TC boş olmasın
             if (rol === 'USTA' && !veri.tcno) {
                 alert("Lütfen TC Kimlik numaranızı giriniz.");
                 return;
             }
-            
 
             try {
                 const response = await fetch('/kaydol', {
@@ -72,7 +113,7 @@
                 });
 
                 if (response.ok) {
-                    document.getElementById('mesaj').innerText = "Başarıyla kaydedildi!";
+                    document.getElementById('mesaj').innerText = "Kayıt başarılı! E-postanıza doğrulama kodu gönderildi. Giriş yaptıktan sonra profilinizden doğrulama yapabilirsiniz.";
                     document.getElementById('mesaj').style.color = "green";
                 } else {
                     let hataMesaji = "Hata oluştu!";
@@ -84,16 +125,8 @@
                         try { data = JSON.parse(raw); } catch {}
                     }
 
-                    console.log('Hata response:', {
-                        status: response.status,
-                        contentType,
-                        raw
-                    });
-
                     if (data && data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
-                        hataMesaji = data.errors
-                            .map(e => `${e.field || 'alan'}: ${e.message || 'geçersiz'}`)
-                            .join(', ');
+                        hataMesaji = data.errors.map(e => (e.field || 'alan') + ': ' + (e.message || 'geçersiz')).join(', ');
                     } else if (data && data.message) {
                         hataMesaji = data.message;
                     } else if (raw) {
@@ -104,11 +137,9 @@
                     document.getElementById('mesaj').style.color = "red";
                 }
             } catch (error) {
-                console.error("Hata:", error);
                 document.getElementById('mesaj').innerText = "Sunucuya bağlanılamadı.";
             }
         }
-
     </script>
 </body>
 </html>

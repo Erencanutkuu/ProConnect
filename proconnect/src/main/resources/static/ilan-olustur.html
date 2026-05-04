@@ -35,6 +35,15 @@
                         '<p class="hata">Bu sayfaya sadece usta hesabıyla erişebilirsiniz.</p>' +
                         '<a href="login.html" class="geri-link">← Giriş Yap</a>' +
                         '<a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>';
+                } else if (data.onayDurumu !== 'ONAYLANDI') {
+                    var mesaj = 'Basvurunuz henuz onaylanmadi.';
+                    if (data.onayDurumu === 'BEKLEMEDE') mesaj = 'Basvurunuz inceleniyor. Onaylandiginda ilan olusturabilirsiniz.';
+                    else if (data.onayDurumu === 'REDDEDILDI') mesaj = 'Basvurunuz reddedildi.';
+                    else if (!data.epostaDogrulandi) mesaj = 'Once e-postanizi dogrulayin.';
+                    document.querySelector('.form-container').innerHTML =
+                        '<h2>Erişim Engellendi</h2>' +
+                        '<p class="hata">' + mesaj + '</p>' +
+                        '<a href="index.html" class="geri-link">← Ana Sayfaya Dön</a>';
                 }
             } catch (e) {
                 window.location.href = 'login.html';

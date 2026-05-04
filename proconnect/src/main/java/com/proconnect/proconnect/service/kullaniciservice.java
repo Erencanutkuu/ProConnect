@@ -16,11 +16,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Service // Bu işaret, bu sınıfın projenin "Karar Merkezi" (Aşçısı) olduğunu söyler
 public class kullaniciservice {
 
-    @Autowired // Bu işaret, veritabanı deposuna (Repository) giden kablodur
+    @Autowired
     private kullanicirepository repository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EpostaService epostaService;
 
     // Garsonun getirdiği siparişi (DTO) alıp, veritabanına uygun (Entity) hale getiren metod
     public kullanici kullaniciKaydet(kaydol request ) {   // burda kaydolmadan request adını çekiyoruz ve kullanıyoruz
@@ -48,7 +51,16 @@ public class kullaniciservice {
             yeniKullanici.setTcno(new tcno(request.getTcno()));
         }
 
-        return repository.save(yeniKullanici); // Ve depocuya (Repository) "Bunu rafa koy" diyoruz
+        kullanici kaydedilen = repository.save(yeniKullanici);
+
+        // Kayit sonrasi e-posta dogrulama kodu gonder
+        try {
+            epostaService.dogrulamaKoduGonder(kaydedilen);
+        } catch (Exception e) {
+            // Mail gonderilemezse kaydi iptal etme, kullanici tekrar kod isteyebilir
+        }
+
+        return kaydedilen;
     }
 
 }

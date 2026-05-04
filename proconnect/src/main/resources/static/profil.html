@@ -26,9 +26,27 @@
             <p style="color:var(--muted);">Yükleniyor...</p>
         </div>
 
-        <h3 class="rezv-baslik" id="rezv-baslik"></h3>
-        <div class="rezv-liste" id="rezv-liste">
-            <p class="bos-mesaj">Yükleniyor...</p>
+        <!-- E-posta Dogrulama + Belge Yukleme Bolumu -->
+        <div id="dogrulama-bolumu" style="display:none;"></div>
+
+        <!-- Sekmeler -->
+        <div class="profil-tabs">
+            <button class="tab-btn active" onclick="sekmeDegistir(event, 'rezervasyonlar')">Rezervasyonlar</button>
+            <button class="tab-btn" onclick="sekmeDegistir(event, 'favoriler')">Favori İlanlarım</button>
+        </div>
+
+        <!-- Sekme İçerikleri -->
+        <div id="sekme-rezervasyonlar" class="sekme-icerik">
+            <h3 class="rezv-baslik" id="rezv-baslik"></h3>
+            <div class="rezv-liste" id="rezv-liste">
+                <p class="bos-mesaj">Yükleniyor...</p>
+            </div>
+        </div>
+
+        <div id="sekme-favoriler" class="sekme-icerik" style="display:none;">
+            <div class="grid" id="favoriler-liste" style="margin-bottom: 40px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                <p class="bos-mesaj" style="grid-column: 1/-1;">Yükleniyor...</p>
+            </div>
         </div>
     </div>
 
@@ -63,13 +81,29 @@
                         '<span class="profil-rol">' + data.rol + '</span>' +
                     '</div>';
 
+                // Dogrulama bolumunu goster
+                dogrulamaBolumuGoster(data);
+
                 // Rezervasyonları yükle
                 await rezervasyonlariYukle(data.rol);
+
+                // Favorileri yükle
+                await favorileriYukle();
 
             } catch (e) {
                 window.location.href = 'login.html';
             }
         });
+
+        function sekmeDegistir(event, sekmeId) {
+            document.querySelectorAll('.sekme-icerik').forEach(el => el.style.display = 'none');
+            document.getElementById('sekme-' + sekmeId).style.display = 'block';
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (event) {
+                event.currentTarget.classList.add('active');
+            }
+        }
 
         async function rezervasyonlariYukle(rol) {
             const baslik = document.getElementById('rezv-baslik');
@@ -160,9 +194,218 @@
             }
         }
 
+        function dogrulamaBolumuGoster(data) {
+            var bolum = document.getElementById('dogrulama-bolumu');
+
+            // E-posta dogrulanmamissa
+            if (!data.epostaDogrulandi) {
+                bolum.style.display = 'block';
+                bolum.innerHTML =
+                    '<div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;margin-bottom:20px;">' +
+                        '<h3 style="margin:0 0 10px;color:#856404;"><i class="fa-solid fa-envelope"></i> E-posta Doğrulama</h3>' +
+                        '<p style="color:#856404;margin:0 0 12px;">E-postanıza gönderilen 6 haneli kodu girin.</p>' +
+                        '<div style="display:flex;gap:8px;align-items:center;">' +
+                            '<input type="text" id="dogrulama-kodu" maxlength="6" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;font-weight:bold;padding:8px;width:160px;border:2px solid #ffc107;border-radius:6px;">' +
+                            '<button onclick="epostaDogrula()" style="padding:10px 20px;background:#28a745;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Doğrula</button>' +
+                        '</div>' +
+                        '<button onclick="kodTekrarGonder()" style="background:none;border:none;color:#007bff;cursor:pointer;margin-top:8px;text-decoration:underline;font-size:13px;">Kodu tekrar gönder</button>' +
+                        '<p id="eposta-dogrulama-mesaj" style="margin:8px 0 0;"></p>' +
+                    '</div>';
+                return;
+            }
+
+            // USTA ise ve belge yuklemediyse
+            if (data.rol === 'USTA' && !data.belgeYuklendi) {
+                bolum.style.display = 'block';
+                bolum.innerHTML =
+                    '<div style="background:#e8f4fd;border:1px solid #b8daff;padding:20px;border-radius:8px;margin-bottom:20px;">' +
+                        '<h3 style="margin:0 0 10px;color:#004085;"><i class="fa-solid fa-file-arrow-up"></i> Belge Yükleme</h3>' +
+                        '<p style="color:#004085;margin:0 0 12px;">İlan oluşturabilmek için diploma veya sertifikanızı yükleyin. (PDF, JPG, PNG - max 5MB)</p>' +
+                        '<div style="border:2px dashed #b8daff;padding:16px;text-align:center;border-radius:8px;cursor:pointer;margin-bottom:10px;" onclick="document.getElementById(\'belge-dosya\').click()">' +
+                            '<input type="file" id="belge-dosya" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="dosyaSecildi(this)">' +
+                            '<p id="dosya-label" style="margin:0;color:#666;">Dosya seçmek için tıklayın</p>' +
+                        '</div>' +
+                        '<button onclick="belgeYukle()" style="padding:10px 20px;background:#28a745;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Yükle</button>' +
+                        '<p id="belge-mesaj" style="margin:8px 0 0;"></p>' +
+                    '</div>';
+                return;
+            }
+
+            // USTA, eposta dogrulandi, belge yuklendi -> tamamlandi
+            if (data.rol === 'USTA' && data.epostaDogrulandi && data.belgeYuklendi) {
+                bolum.style.display = 'block';
+                bolum.innerHTML =
+                    '<div style="background:#d4edda;border:1px solid #c3e6cb;padding:16px;border-radius:8px;margin-bottom:20px;">' +
+                        '<p style="margin:0;color:#155724;"><i class="fa-solid fa-circle-check"></i> E-posta doğrulandı ve belgeniz yüklendi. İlan oluşturabilirsiniz.</p>' +
+                    '</div>';
+            }
+        }
+
+        function dosyaSecildi(input) {
+            var label = document.getElementById('dosya-label');
+            if (input.files.length > 0) {
+                label.innerHTML = '<strong style="color:#28a745;">' + input.files[0].name + '</strong>';
+            } else {
+                label.textContent = 'Dosya seçmek için tıklayın';
+            }
+        }
+
+        async function epostaDogrula() {
+            var kod = document.getElementById('dogrulama-kodu').value.trim();
+            var mesajEl = document.getElementById('eposta-dogrulama-mesaj');
+            if (kod.length !== 6) {
+                mesajEl.innerText = 'Lütfen 6 haneli kodu giriniz.';
+                mesajEl.style.color = 'red';
+                return;
+            }
+            try {
+                var res = await fetch('/eposta-dogrula', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ eposta: kullaniciBilgi.eposta, kod: kod })
+                });
+                var data = await res.json();
+                if (res.ok && data.basarili) {
+                    mesajEl.innerText = 'E-posta doğrulandı!';
+                    mesajEl.style.color = 'green';
+                    kullaniciBilgi.epostaDogrulandi = true;
+                    setTimeout(function() { dogrulamaBolumuGoster(kullaniciBilgi); }, 1000);
+                } else {
+                    mesajEl.innerText = data.message || data.mesaj || 'Doğrulama başarısız.';
+                    mesajEl.style.color = 'red';
+                }
+            } catch (e) {
+                mesajEl.innerText = 'Sunucuya bağlanılamadı.';
+                mesajEl.style.color = 'red';
+            }
+        }
+
+        async function kodTekrarGonder() {
+            var mesajEl = document.getElementById('eposta-dogrulama-mesaj');
+            try {
+                var res = await fetch('/kod-tekrar-gonder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ eposta: kullaniciBilgi.eposta })
+                });
+                if (res.ok) {
+                    mesajEl.innerText = 'Kod tekrar gönderildi.';
+                    mesajEl.style.color = 'green';
+                } else {
+                    var data = await res.json();
+                    mesajEl.innerText = data.message || 'Hata oluştu.';
+                    mesajEl.style.color = 'red';
+                }
+            } catch (e) {
+                mesajEl.innerText = 'Sunucuya bağlanılamadı.';
+                mesajEl.style.color = 'red';
+            }
+        }
+
+        async function belgeYukle() {
+            var dosyaInput = document.getElementById('belge-dosya');
+            var mesajEl = document.getElementById('belge-mesaj');
+            if (dosyaInput.files.length === 0) {
+                mesajEl.innerText = 'Lütfen bir dosya seçiniz.';
+                mesajEl.style.color = 'red';
+                return;
+            }
+            var formData = new FormData();
+            formData.append('dosya', dosyaInput.files[0]);
+            try {
+                var res = await fetch('/belge-yukle', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                var data = await res.json();
+                if (res.ok && data.basarili) {
+                    mesajEl.innerText = 'Belge yüklendi! Artık ilan oluşturabilirsiniz.';
+                    mesajEl.style.color = 'green';
+                    kullaniciBilgi.belgeYuklendi = true;
+                    setTimeout(function() { dogrulamaBolumuGoster(kullaniciBilgi); }, 1000);
+                } else {
+                    mesajEl.innerText = data.message || data.mesaj || 'Yükleme başarısız.';
+                    mesajEl.style.color = 'red';
+                }
+            } catch (e) {
+                mesajEl.innerText = 'Sunucuya bağlanılamadı.';
+                mesajEl.style.color = 'red';
+            }
+        }
+
         async function cikisYap() {
             await fetch('/cikis', { method: 'POST', credentials: 'include' });
             window.location.href = 'index.html';
+        }
+
+        function getFavorilerKey() {
+            return kullaniciBilgi && kullaniciBilgi.eposta ? 'favoriler_' + kullaniciBilgi.eposta : 'favoriler_anon';
+        }
+
+        async function favorileriYukle() {
+            const liste = document.getElementById('favoriler-liste');
+            let favs = [];
+            try {
+                favs = JSON.parse(localStorage.getItem(getFavorilerKey()) || '[]');
+            } catch(e) {}
+
+            if (favs.length === 0) {
+                liste.innerHTML = '<p class="bos-mesaj" style="grid-column: 1/-1;">Henüz favoriye eklediğiniz ilan bulunmuyor.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch('/ilan/aktif');
+                const tumIlanlar = await res.json();
+                const favIlanlar = tumIlanlar.filter(ilan => favs.includes(ilan.id));
+
+                if (favIlanlar.length === 0) {
+                    liste.innerHTML = '<p class="bos-mesaj" style="grid-column: 1/-1;">Favoriye eklediğiniz ilanlar artık aktif değil veya silinmiş.</p>';
+                    return;
+                }
+
+                liste.innerHTML = favIlanlar.map(function(ilan) {
+                    const konum = ilan.ilce && ilan.sehir ? ilan.ilce + ', ' + ilan.sehir : (ilan.sehir || '');
+                    const butce = ilan.butce ? ilan.butce + ' ₺' : '';
+                    const usta = ilan.olusturanKullanici ? ilan.olusturanKullanici.ad + ' ' + ilan.olusturanKullanici.soyad : '';
+                    const cardMediaHtml = ilan.gorselYolu 
+                        ? '<div class="card-media" style="background: url(\'/uploads/' + ilan.gorselYolu + '\') center/cover no-repeat;"></div>'
+                        : '<div class="card-media"></div>';
+
+                    return '<article class="card" style="min-height: auto;">' +
+                        '<div class="favorite-icon active" onclick="favoridenCikar(event, ' + ilan.id + ')" title="Favoriden Çıkar">' +
+                            '<i class="fa-solid fa-heart"></i>' +
+                        '</div>' +
+                        cardMediaHtml +
+                        '<div class="card-body">' +
+                            '<h3 class="card-title" style="font-size:15px;">' + ilan.baslik + '</h3>' +
+                            (usta ? '<div class="meta" style="font-size:12px;margin-bottom:4px;"><span><i class="fa-solid fa-user"></i> ' + usta + '</span></div>' : '') +
+                            (konum ? '<div class="meta" style="font-size:12px;margin-bottom:4px;"><span><i class="fa-solid fa-location-dot"></i> ' + konum + '</span></div>' : '') +
+                            (butce ? '<div class="meta" style="font-size:12px;"><span><i class="fa-solid fa-turkish-lira-sign"></i> ' + butce + '</span></div>' : '') +
+                        '</div>' +
+                    '</article>';
+                }).join('');
+            } catch (e) {
+                liste.innerHTML = '<p class="bos-mesaj" style="color:red; grid-column: 1/-1;">Favoriler yüklenemedi.</p>';
+            }
+        }
+
+        function favoridenCikar(event, ilanId) {
+            event.preventDefault();
+            let favs = [];
+            try {
+                favs = JSON.parse(localStorage.getItem(getFavorilerKey()) || '[]');
+            } catch(e) {}
+            
+            const index = favs.indexOf(ilanId);
+            if (index > -1) {
+                favs.splice(index, 1);
+                localStorage.setItem(getFavorilerKey(), JSON.stringify(favs));
+                favorileriYukle(); // Listeyi yenile
+            }
         }
     </script>
 </body>

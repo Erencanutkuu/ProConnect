@@ -2,8 +2,10 @@ package com.proconnect.proconnect.controller;
 
 import com.proconnect.proconnect.dto.kaydol;
 import com.proconnect.proconnect.dto.login;
+import com.proconnect.proconnect.entity.Rol;
 import com.proconnect.proconnect.entity.kullanici;
 import com.proconnect.proconnect.service.kullaniciservice;
+import com.proconnect.proconnect.service.EpostaService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +39,9 @@ public class kullanicicontroller {
 
     @Autowired
     private jwtutil jwtUtil;
+
+    @Autowired
+    private EpostaService epostaService;
 
     @PostMapping("/kaydol") // Adresimiz artık: localhost:8080/kaydol
     public kullanici kaydol(@Valid @RequestBody kaydol request) {  // verileri çekmek için  // requestbody ile çekiyoruz valid ise kontrol ediiyor 
@@ -88,6 +93,38 @@ public class kullanicicontroller {
         sonuc.put("soyad", k.getSoyad());
         sonuc.put("eposta", k.getEposta());
         sonuc.put("rol", k.getRol().name());
+        sonuc.put("epostaDogrulandi", k.isEpostaDogrulandi());
+        if (k.getRol() == Rol.USTA) {
+            sonuc.put("belgeYuklendi", k.getBelgeYolu() != null && !k.getBelgeYolu().isBlank());
+        }
+        return sonuc;
+    }
+
+    @PostMapping("/eposta-dogrula")
+    public Map<String, Object> epostaDogrula(@RequestBody Map<String, String> body) {
+        String eposta = body.get("eposta");
+        String kod = body.get("kod");
+        epostaService.koduDogrula(eposta, kod);
+
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+        sonuc.put("basarili", true);
+        sonuc.put("mesaj", "E-posta basariyla dogrulandi");
+
+        // USTA ise belge yukleme gerektigini bildir
+        kullanici k = kullaniciRepository.findByEposta(eposta).orElse(null);
+        if (k != null && k.getRol() == Rol.USTA) {
+            sonuc.put("belgeYuklemeGerekli", true);
+        }
+        return sonuc;
+    }
+
+    @PostMapping("/kod-tekrar-gonder")
+    public Map<String, String> kodTekrarGonder(@RequestBody Map<String, String> body) {
+        String eposta = body.get("eposta");
+        epostaService.kodTekrarGonder(eposta);
+
+        Map<String, String> sonuc = new LinkedHashMap<>();
+        sonuc.put("mesaj", "Dogrulama kodu tekrar gonderildi");
         return sonuc;
     }
 

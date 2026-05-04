@@ -41,6 +41,17 @@ public class kullanici {
 
     private LocalDateTime olusturulmaTarihi;
 
+    // E-posta dogrulama
+    private boolean epostaDogrulandi = false;
+    private String epostaDogrulamaKodu;
+    private LocalDateTime kodGonderimZamani;
+
+    // USTA belge dogrulama
+    private String belgeYolu;
+
+    @Enumerated(EnumType.STRING)
+    private OnayDurum onayDurumu;
+
     @PrePersist // 6. Kayıt anında saati otomatik damgala
     protected void onCreate() {
         olusturulmaTarihi = LocalDateTime.now();

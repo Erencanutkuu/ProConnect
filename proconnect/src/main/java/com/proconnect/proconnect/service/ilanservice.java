@@ -28,13 +28,21 @@ public class ilanservice {
     // İlan oluştur (sadece usta)
     public ilanlar olustur(String eposta, String baslik, String aciklama,
                            BigDecimal butce, String sehir, String ilce,
-                           Double konumLat, Double konumLng) {
+                           Double konumLat, Double konumLng, String gorselYolu) {
 
         kullanici usta = kullaniciRepository.findByEposta(eposta)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
 
         if (usta.getRol() != Rol.USTA) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sadece ustalar ilan oluşturabilir");
+        }
+
+        if (!usta.isEpostaDogrulandi()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ilan olusturmak icin e-postanizi dogrulayin");
+        }
+
+        if (usta.getBelgeYolu() == null || usta.getBelgeYolu().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ilan olusturmak icin belgenizi yukleyin");
         }
 
         ilanlar ilan = new ilanlar();
@@ -47,6 +55,7 @@ public class ilanservice {
         ilan.setKonumLng(konumLng);
         ilan.setOlusturanKullanici(usta);
         ilan.setIlanTarihi(LocalDateTime.now());
+        ilan.setGorselYolu(gorselYolu);
 
         return ilanlarRepository.save(ilan);
     }
