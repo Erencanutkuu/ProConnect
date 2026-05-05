@@ -4,6 +4,9 @@ import com.proconnect.proconnect.entity.yorum;
 import com.proconnect.proconnect.service.yorumservice;
 import com.proconnect.proconnect.util.jwtutil;
 
+import com.proconnect.proconnect.util.JwtResolver;
+
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +25,11 @@ public class yorumcontroller {
 
     // POST /yorum/yaz  body: {"ilanId": 1, "puan": 5, "yorumMetni": "Harika hizmet"}
     @PostMapping("/yaz")
-    public yorum yorumYaz(@CookieValue("jwt") String token, @RequestBody Map<String, Object> body) {
+    public yorum yorumYaz(
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
+            @RequestBody Map<String, Object> body) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         Long ilanId = ((Number) body.get("ilanId")).longValue();
         Integer puan = ((Number) body.get("puan")).intValue();

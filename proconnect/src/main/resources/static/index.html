@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+    <div id="ana-sayfa-icerik">
     <div class="navbar">
         <div class="logo">ProConnect</div>
         <nav class="nav-links">
@@ -125,46 +126,42 @@
             <button onclick="cerezReddet()" class="cerez-reddet">Reddet</button>
         </div>
     </div>
+    </div><!-- /ana-sayfa-icerik -->
 
-    <!-- İlan Detay ve Yorum Modalı (Geniş İki Sütunlu) -->
-    <div id="ilan-detay-modal" class="modal" style="display:none;" onclick="if(event.target===this) ilanDetayKapat()">
-        <div class="modal-content">
-            <span class="close-btn" onclick="ilanDetayKapat()">&times;</span>
-            
-            <div class="modal-left">
-                <div id="modal-header-img" class="modal-header-img"></div>
-                <div class="modal-left-content">
-                    <div id="ilan-detay-icerik">
-                        <!-- İlan bilgileri buraya gelecek -->
-                    </div>
+    <!-- SPA: İlan Detay Sayfası (AJAX ile gösterilir) -->
+    <div id="ilan-detay-sayfa" style="display:none;">
+        <div class="navbar">
+            <div class="logo">ProConnect</div>
+            <nav class="nav-links">
+                <a href="#" onclick="detaySayfaKapat(event)"><i class="fa-solid fa-arrow-left"></i> İlanlara Dön</a>
+            </nav>
+            <div class="nav-actions" id="detay-nav-actions"></div>
+        </div>
+        <div class="detay-sayfa-wrap">
+            <div class="detay-hero" id="detay-hero"></div>
+            <div class="detay-grid">
+                <div class="detay-sol">
+                    <div id="detay-ilan-bilgi"></div>
                 </div>
-            </div>
-            
-            <div class="modal-right">
-                <div class="modal-bottom-bar" id="modal-bottom-bar" style="margin-bottom: 30px; box-shadow: none; border-bottom: 1px solid #eee; padding-left: 0; padding-right: 0;">
-                    <!-- Rezervasyon butonu buraya gelecek -->
-                </div>
-                
-                <div class="yorumlar-section" style="margin-top: 0; padding-top: 0; border-top: none;">
-                    <h3>Yorumlar ve Değerlendirmeler</h3>
-                    <div id="ilan-puan-ozeti" class="puan-ozeti"></div>
-                    
-                    <div id="yorum-yap-alani" style="display: none;" class="yorum-formu">
-                        <h4>Puan Verin ve Yorum Yazın</h4>
-                        <div class="yildiz-secim" id="yildiz-secim">
-                            <i class="fa-solid fa-star" data-deger="1"></i>
-                            <i class="fa-solid fa-star" data-deger="2"></i>
-                            <i class="fa-solid fa-star" data-deger="3"></i>
-                            <i class="fa-solid fa-star" data-deger="4"></i>
-                            <i class="fa-solid fa-star" data-deger="5"></i>
+                <div class="detay-sag">
+                    <div class="detay-aksiyon-kutu" id="detay-aksiyon-kutu"></div>
+                    <div class="detay-yorum-bolum">
+                        <h3><i class="fa-solid fa-star"></i> Yorumlar ve Değerlendirmeler</h3>
+                        <div id="detay-puan-ozeti" class="puan-ozeti"></div>
+                        <div id="detay-yorum-yap" style="display:none;" class="yorum-formu">
+                            <h4>Puan Verin ve Yorum Yazın</h4>
+                            <div class="yildiz-secim" id="detay-yildiz-secim">
+                                <i class="fa-solid fa-star" data-deger="1"></i>
+                                <i class="fa-solid fa-star" data-deger="2"></i>
+                                <i class="fa-solid fa-star" data-deger="3"></i>
+                                <i class="fa-solid fa-star" data-deger="4"></i>
+                                <i class="fa-solid fa-star" data-deger="5"></i>
+                            </div>
+                            <textarea id="detay-yorum-metni" placeholder="Aldığınız hizmet hakkında neler düşünüyorsunuz? (İsteğe bağlı)"></textarea>
+                            <button class="btn-card" style="width:100%; margin-top:8px;" onclick="yorumGonder()">Gönder</button>
+                            <p id="detay-yorum-mesaj"></p>
                         </div>
-                        <textarea id="yorum-metni" placeholder="Aldığınız hizmet hakkında neler düşünüyorsunuz? (İsteğe bağlı)"></textarea>
-                        <button class="btn-card" style="width:100%; margin-top:8px;" onclick="yorumGonder()">Gönder</button>
-                        <p id="yorum-mesaj"></p>
-                    </div>
-
-                    <div id="ilan-yorum-listesi" class="yorum-listesi">
-                        <p class="muted">Yorumlar yükleniyor...</p>
+                        <div id="detay-yorum-listesi" class="yorum-listesi"></div>
                     </div>
                 </div>
             </div>

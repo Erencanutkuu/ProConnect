@@ -3,7 +3,9 @@ package com.proconnect.proconnect.controller;
 import com.proconnect.proconnect.entity.mesaj;
 import com.proconnect.proconnect.service.mesajservice;
 import com.proconnect.proconnect.util.jwtutil;
+import com.proconnect.proconnect.util.JwtResolver;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +25,10 @@ public class mesajcontroller {
 
     @PostMapping("/gonder")
     public Map<String, Object> gonder(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @RequestBody Map<String, Object> body) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
 
         Long aliciId = Long.valueOf(body.get("aliciId").toString());
@@ -40,21 +44,29 @@ public class mesajcontroller {
     }
 
     @GetMapping("/konusmalar")
-    public List<Map<String, Object>> konusmalar(@CookieValue("jwt") String token) {
+    public List<Map<String, Object>> konusmalar(
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         return mesajService.konusmalar(eposta);
     }
 
     @GetMapping("/oku/{partnerId}")
     public List<mesaj> oku(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @PathVariable("partnerId") Long partnerId) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         return mesajService.mesajlariGetir(eposta, partnerId);
     }
 
     @GetMapping("/okunmamis-sayisi")
-    public Map<String, Object> okunmamisSayisi(@CookieValue("jwt") String token) {
+    public Map<String, Object> okunmamisSayisi(
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         long sayi = mesajService.okunmamisSayisi(eposta);
 

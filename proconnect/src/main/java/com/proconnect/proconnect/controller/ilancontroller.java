@@ -4,6 +4,9 @@ import com.proconnect.proconnect.entity.ilanlar;
 import com.proconnect.proconnect.service.GorselService;
 import com.proconnect.proconnect.service.ilanservice;
 import com.proconnect.proconnect.util.jwtutil;
+import com.proconnect.proconnect.util.JwtResolver;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +38,8 @@ public class ilancontroller {
 
     @PostMapping(value = "/olustur", consumes = {"multipart/form-data"})
     public ilanlar olustur(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @RequestParam("baslik") String baslik,
             @RequestParam("aciklama") String aciklama,
             @RequestParam(value = "butce", required = false) BigDecimal butce,
@@ -45,6 +49,7 @@ public class ilancontroller {
             @RequestParam(value = "konumLng", required = false) Double konumLng,
             @RequestParam(value = "gorsel", required = false) MultipartFile gorsel) {
 
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         String gorselYolu = null;
 
@@ -97,13 +102,20 @@ public class ilancontroller {
     }
 
     @GetMapping("/benimkiler")
-    public List<ilanlar> benimkiler(@CookieValue("jwt") String token) {
+    public List<ilanlar> benimkiler(
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         return ilanService.benimIlanlarim(eposta);
     }
 
     @DeleteMapping("/sil/{id}")
-    public Map<String, String> ilanSil(@CookieValue("jwt") String token, @PathVariable("id") Long id) {
+    public Map<String, String> ilanSil(
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
+            @PathVariable("id") Long id) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         ilanService.ilanSil(eposta, id);
         return Map.of("mesaj", "İlan silindi");
@@ -111,9 +123,11 @@ public class ilancontroller {
 
     @PutMapping("/guncelle/{id}")
     public Map<String, Object> ilanGuncelle(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @PathVariable("id") Long id,
             @RequestBody Map<String, Object> body) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
 
         String baslik = (String) body.get("baslik");

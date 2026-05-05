@@ -217,9 +217,49 @@ body {
     font-weight: 800;
     letter-spacing: 0.3px;
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    width: 100%;
+    text-align: center;
+    display: block;
 }
 .card-action .action-btn:hover {
     background: #17a358;
+}
+
+/* Silme İkonu (ilan sahibi) */
+.delete-icon {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(220, 53, 69, 0.85);
+    color: #fff;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: background 0.2s;
+}
+.delete-icon:hover {
+    background: #c82333;
+}
+
+/* Kart Açıklama */
+.card-desc {
+    font-size: 13px;
+    color: #666;
+    margin: 6px 0 0;
+}
+
+/* Rezervasyon Yapıldı durumu */
+.action-btn-yapildi {
+    background: #f0ad4e !important;
+    width: 100%;
+    text-align: center;
 }
 
 /* İlan Oluştur Kartı */

@@ -8,6 +8,7 @@ import com.proconnect.proconnect.service.kullaniciservice;
 import com.proconnect.proconnect.service.EpostaService;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.proconnect.proconnect.service.loginservice;
 import com.proconnect.proconnect.repository.kullanicirepository;
 import com.proconnect.proconnect.util.jwtutil;
+import com.proconnect.proconnect.util.JwtResolver;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,18 +50,24 @@ public class kullanicicontroller {
         return service.kullaniciKaydet(request); // Müşteri olarak kaydet
     }
     @PostMapping("/login")
-    public String login(@Valid @RequestBody login login, HttpServletResponse response) {
+    public Map<String, Object> login(@Valid @RequestBody login login, HttpServletResponse response) {
         String token = loginService.login(login.getEposta(), login.getSifre());
 
+        // Web için cookie set et
         Cookie cookie = new Cookie("jwt", token);
-        cookie.setHttpOnly(true);   // JS erişemez
-        cookie.setSecure(false);    // localhost için false, production'da true yapılacak
-        cookie.setPath("/");        // tüm site için geçerli
-        cookie.setMaxAge(3600);     // 1 saat
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
         response.addCookie(cookie);
 
-        return "Giriş başarılı";
-      }
+        // Mobil (Flutter) için token'ı body'de de döndür
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+        sonuc.put("basarili", true);
+        sonuc.put("mesaj", "Giriş başarılı");
+        sonuc.put("token", token);
+        return sonuc;
+    }
 
     @PostMapping("/cikis")
     public String cikis(HttpServletResponse response) {
@@ -72,7 +80,8 @@ public class kullanicicontroller {
     }
 
     @GetMapping("/me")
-    public Map<String, Object> me(@CookieValue(value = "jwt", required = false) String token) {
+    public Map<String, Object> me(@CookieValue(value = "jwt", required = false) String cookieToken, HttpServletRequest request) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         Map<String, Object> sonuc = new LinkedHashMap<>();
 
         if (token == null || jwtUtil.isTokenExpired(token)) {
@@ -133,8 +142,10 @@ public class kullanicicontroller {
 
     @PutMapping("/profil-guncelle")
     public Map<String, Object> profilGuncelle(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @RequestBody Map<String, String> body) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         kullanici k = service.profilGuncelle(eposta, body.get("ad"), body.get("soyad"), body.get("telefon"));
 
@@ -149,8 +160,10 @@ public class kullanicicontroller {
 
     @PostMapping("/sifre-degistir")
     public Map<String, Object> sifreDegistir(
-            @CookieValue("jwt") String token,
+            @CookieValue(value = "jwt", required = false) String cookieToken,
+            HttpServletRequest request,
             @RequestBody Map<String, String> body) {
+        String token = cookieToken != null ? cookieToken : JwtResolver.resolveToken(request);
         String eposta = jwtUtil.extractUsername(token);
         service.sifreDegistir(eposta, body.get("mevcutSifre"), body.get("yeniSifre"));
 

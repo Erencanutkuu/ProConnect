@@ -67,7 +67,8 @@ public class mesajservice {
             kullanici partner = kullaniciRepository.findById(partnerId).orElse(null);
             if (partner == null) continue;
 
-            mesaj son = mesajRepository.sonMesaj(ben.getId(), partnerId);
+            List<mesaj> sonMesajlar = mesajRepository.sonMesajlar(ben.getId(), partnerId, org.springframework.data.domain.PageRequest.of(0, 1));
+            mesaj son = sonMesajlar.isEmpty() ? null : sonMesajlar.get(0);
             long okunmamis = mesajRepository.okunmamisSayisiPartner(ben.getId(), partnerId);
 
             Map<String, Object> konusma = new LinkedHashMap<>();
