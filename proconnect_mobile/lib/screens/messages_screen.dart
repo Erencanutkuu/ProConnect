@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/api_service.dart';
@@ -5,17 +6,27 @@ import '../services/api_service.dart';
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
   @override
-  State<MessagesScreen> createState() => _MessagesScreenState();
+  MessagesScreenState createState() => MessagesScreenState();
 }
 
-class _MessagesScreenState extends State<MessagesScreen> {
+class MessagesScreenState extends State<MessagesScreen> {
   List<dynamic> _konusmalar = [];
   bool _loading = true;
+  Timer? _timer;
+
+  void refresh() => _yukle();
 
   @override
   void initState() {
     super.initState();
     _yukle();
+    _timer = Timer.periodic(const Duration(seconds: 10), (_) => _yenile());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _yukle() async {
@@ -26,6 +37,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
     } catch (_) {
       if (mounted) setState(() { _loading = false; });
     }
+  }
+
+  Future<void> _yenile() async {
+    try {
+      final data = await ApiService.getKonusmalar();
+      if (mounted) setState(() { _konusmalar = data; });
+    } catch (_) {}
   }
 
   @override

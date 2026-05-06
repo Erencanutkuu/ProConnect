@@ -82,7 +82,110 @@ class ApiService {
     await clearToken();
   }
 
+  // ============ PROFİL ============
+  static Future<Map<String, dynamic>> profilGuncelle(String ad, String soyad, String telefon) async {
+    final res = await http.put(
+      Uri.parse('$apiBaseUrl/profil-guncelle'),
+      headers: _headers(),
+      body: jsonEncode({'ad': ad, 'soyad': soyad, 'telefon': telefon}),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
+  static Future<Map<String, dynamic>> sifreDegistir(String mevcutSifre, String yeniSifre) async {
+    final res = await http.post(
+      Uri.parse('$apiBaseUrl/sifre-degistir'),
+      headers: _headers(),
+      body: jsonEncode({'mevcutSifre': mevcutSifre, 'yeniSifre': yeniSifre}),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
+  static Future<Map<String, dynamic>> epostaDogrula(String eposta, String kod) async {
+    final res = await http.post(
+      Uri.parse('$apiBaseUrl/eposta-dogrula'),
+      headers: _headers(),
+      body: jsonEncode({'eposta': eposta, 'kod': kod}),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
+  static Future<void> kodTekrarGonder(String eposta) async {
+    final res = await http.post(
+      Uri.parse('$apiBaseUrl/kod-tekrar-gonder'),
+      headers: _headers(),
+      body: jsonEncode({'eposta': eposta}),
+    );
+    if (res.statusCode != 200) throw Exception(res.body);
+  }
+
+  // ============ BELGE ============
+  static Future<Map<String, dynamic>> belgeYukle(String filePath, String fileName) async {
+    final request = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl/belge-yukle'));
+    if (_token != null) request.headers['Authorization'] = 'Bearer $_token';
+    request.files.add(await http.MultipartFile.fromPath('dosya', filePath, filename: fileName));
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
   // ============ İLANLAR ============
+  static Future<Map<String, dynamic>> ilanOlustur({
+    required String baslik,
+    required String aciklama,
+    String? butce,
+    String? sehir,
+    String? ilce,
+    String? gorselPath,
+    String? gorselName,
+  }) async {
+    final request = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl/ilan/olustur'));
+    if (_token != null) request.headers['Authorization'] = 'Bearer $_token';
+    request.fields['baslik'] = baslik;
+    request.fields['aciklama'] = aciklama;
+    if (butce != null && butce.isNotEmpty) request.fields['butce'] = butce;
+    if (sehir != null && sehir.isNotEmpty) request.fields['sehir'] = sehir;
+    if (ilce != null && ilce.isNotEmpty) request.fields['ilce'] = ilce;
+    if (gorselPath != null && gorselName != null) {
+      request.files.add(await http.MultipartFile.fromPath('gorsel', gorselPath, filename: gorselName));
+    }
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
+  static Future<List<dynamic>> getBenimIlanlarim() async {
+    final res = await http.get(
+      Uri.parse('$apiBaseUrl/ilan/benimkiler'),
+      headers: _headers(json: false),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> ilanGuncelle(int ilanId, Map<String, dynamic> body) async {
+    final res = await http.put(
+      Uri.parse('$apiBaseUrl/ilan/guncelle/$ilanId'),
+      headers: _headers(),
+      body: jsonEncode(body),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
+  static Future<void> ilanSil(int ilanId) async {
+    final res = await http.delete(
+      Uri.parse('$apiBaseUrl/ilan/sil/$ilanId'),
+      headers: _headers(json: false),
+    );
+    if (res.statusCode != 200) throw Exception(res.body);
+  }
+
   static Future<List<dynamic>> getIlanlar() async {
     final res = await http.get(
       Uri.parse('$apiBaseUrl/ilan/aktif'),

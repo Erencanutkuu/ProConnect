@@ -14,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _epostaCtrl = TextEditingController();
   final _sifreCtrl = TextEditingController();
   final _telefonCtrl = TextEditingController();
+  final _tcnoCtrl = TextEditingController();
   String _rol = 'MUSTERI';
   bool _loading = false;
   String? _hata;
@@ -25,16 +26,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() { _hata = 'Tüm alanları doldurun.'; });
       return;
     }
+    if (_rol == 'USTA' && _tcnoCtrl.text.trim().length != 11) {
+      setState(() { _hata = 'TC Kimlik numarası 11 haneli olmalıdır.'; });
+      return;
+    }
     setState(() { _loading = true; _hata = null; _basari = null; });
     try {
-      await ApiService.register({
+      final body = {
         'ad': _adCtrl.text.trim(),
         'soyad': _soyadCtrl.text.trim(),
         'eposta': _epostaCtrl.text.trim(),
         'sifre': _sifreCtrl.text,
         'telefon': _telefonCtrl.text.trim(),
         'rol': _rol,
-      });
+      };
+      if (_rol == 'USTA') {
+        body['tcno'] = _tcnoCtrl.text.trim();
+      }
+      await ApiService.register(body);
       setState(() { _basari = 'Kayıt başarılı! Giriş yapabilirsiniz.'; });
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) Navigator.pop(context);
@@ -74,6 +83,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 14),
             TextField(controller: _telefonCtrl, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Telefon', prefixIcon: Icon(Icons.phone_outlined))),
             const SizedBox(height: 14),
+            if (_rol == 'USTA') ...[
+              TextField(
+                controller: _tcnoCtrl,
+                keyboardType: TextInputType.number,
+                maxLength: 11,
+                decoration: const InputDecoration(
+                  labelText: 'TC Kimlik No',
+                  prefixIcon: Icon(Icons.credit_card),
+                  counterText: '',
+                ),
+              ),
+              const SizedBox(height: 14),
+            ],
             TextField(controller: _sifreCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Şifre (min 6 karakter)', prefixIcon: Icon(Icons.lock_outline))),
             const SizedBox(height: 12),
 

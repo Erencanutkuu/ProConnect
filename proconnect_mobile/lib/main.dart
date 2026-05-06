@@ -102,6 +102,7 @@ class _MainShellState extends State<MainShell> {
   int _okunmamis = 0;
 
   final _homeKey = GlobalKey<HomeScreenState>();
+  final _messagesKey = GlobalKey<MessagesScreenState>();
   final _profileKey = GlobalKey<ProfileScreenState>();
 
   late final List<Widget> _screens;
@@ -111,7 +112,7 @@ class _MainShellState extends State<MainShell> {
     super.initState();
     _screens = [
       HomeScreen(key: _homeKey),
-      const MessagesScreen(),
+      MessagesScreen(key: _messagesKey),
       ProfileScreen(key: _profileKey),
     ];
     _badgeGuncelle();
@@ -137,7 +138,7 @@ class _MainShellState extends State<MainShell> {
         onTap: (i) {
           setState(() { _currentIndex = i; });
           if (i == 0) _homeKey.currentState?.refresh();
-          if (i == 1) _badgeGuncelle();
+          if (i == 1) { _messagesKey.currentState?.refresh(); _badgeGuncelle(); }
           if (i == 2) _profileKey.currentState?.refresh();
         },
         items: [
