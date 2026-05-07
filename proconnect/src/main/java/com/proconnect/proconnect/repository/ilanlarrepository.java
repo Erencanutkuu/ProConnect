@@ -27,4 +27,9 @@ public interface ilanlarrepository extends JpaRepository<ilanlar, Long> {
 
     @Query("SELECT i FROM ilanlar i WHERE i.durum = 'ACIK' ORDER BY i.ilanTarihi DESC")
     List<ilanlar> tumAktifIlanlar();
+
+    @Query("SELECT i FROM ilanlar i WHERE i.butce IS NOT NULL AND " +
+           "(LOWER(i.baslik) LIKE LOWER(CONCAT('%', :arama, '%')) OR " +
+           "LOWER(i.aciklama) LIKE LOWER(CONCAT('%', :arama, '%')))")
+    List<ilanlar> benzerIlanlarButceli(@Param("arama") String arama);
 }

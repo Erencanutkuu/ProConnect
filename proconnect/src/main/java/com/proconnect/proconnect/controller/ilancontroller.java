@@ -121,6 +121,18 @@ public class ilancontroller {
         return Map.of("mesaj", "İlan silindi");
     }
 
+    @PostMapping("/fiyat-oneri")
+    public Map<String, Object> fiyatOnerisi(@RequestBody Map<String, String> body) {
+        String baslik = body.get("baslik");
+        if (baslik == null || baslik.trim().isEmpty()) {
+            Map<String, Object> hata = new LinkedHashMap<>();
+            hata.put("oneri", false);
+            hata.put("mesaj", "Başlık giriniz.");
+            return hata;
+        }
+        return ilanService.fiyatOnerisi(baslik);
+    }
+
     @PutMapping("/guncelle/{id}")
     public Map<String, Object> ilanGuncelle(
             @CookieValue(value = "jwt", required = false) String cookieToken,

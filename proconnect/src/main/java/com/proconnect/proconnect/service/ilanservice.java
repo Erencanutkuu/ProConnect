@@ -12,9 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ilanservice {
@@ -138,5 +142,51 @@ public class ilanservice {
         if (ilce != null) ilan.setIlce(ilce);
 
         return ilanlarRepository.save(ilan);
+    }
+
+    // Fiyat önerisi: benzer ilanları analiz et
+    public Map<String, Object> fiyatOnerisi(String baslik) {
+        Map<String, Object> sonuc = new LinkedHashMap<>();
+
+        // Başlıktaki kelimeleri ayır ve her biri ile benzer ilanları ara
+        String[] kelimeler = baslik.trim().toLowerCase().split("\\s+");
+        List<ilanlar> tumBenzerler = new java.util.ArrayList<>();
+
+        for (String kelime : kelimeler) {
+            if (kelime.length() >= 3) { // 3 harften kısa kelimeleri atla
+                List<ilanlar> bulunanlar = ilanlarRepository.benzerIlanlarButceli(kelime);
+                tumBenzerler.addAll(bulunanlar);
+            }
+        }
+
+        // Tekrar edenleri kaldır
+        List<ilanlar> benzersiz = tumBenzerler.stream()
+            .collect(Collectors.toMap(ilanlar::getId, i -> i, (a, b) -> a))
+            .values().stream().toList();
+
+        List<BigDecimal> fiyatlar = benzersiz.stream()
+            .map(ilanlar::getButce)
+            .filter(b -> b != null && b.compareTo(BigDecimal.ZERO) > 0)
+            .toList();
+
+        if (fiyatlar.isEmpty()) {
+            sonuc.put("oneri", false);
+            sonuc.put("mesaj", "Benzer ilan bulunamadı, fiyatı kendiniz belirleyin.");
+            return sonuc;
+        }
+
+        BigDecimal toplam = fiyatlar.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal ortalama = toplam.divide(BigDecimal.valueOf(fiyatlar.size()), 0, RoundingMode.HALF_UP);
+        BigDecimal min = fiyatlar.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        BigDecimal max = fiyatlar.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+
+        sonuc.put("oneri", true);
+        sonuc.put("ortalama", ortalama);
+        sonuc.put("min", min);
+        sonuc.put("max", max);
+        sonuc.put("ilanSayisi", fiyatlar.size());
+        sonuc.put("mesaj", fiyatlar.size() + " benzer ilan analiz edildi.");
+
+        return sonuc;
     }
 }

@@ -368,7 +368,7 @@ class ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderS
       body: NestedScrollView(
         headerSliverBuilder: (context, inner) => [
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 310,
             pinned: true,
             backgroundColor: kPrimary,
             actions: [

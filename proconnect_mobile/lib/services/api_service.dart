@@ -133,6 +133,17 @@ class ApiService {
     throw Exception(res.body);
   }
 
+  // ============ FİYAT ÖNERİ ============
+  static Future<Map<String, dynamic>> fiyatOnerisi(String baslik) async {
+    final res = await http.post(
+      Uri.parse('$apiBaseUrl/ilan/fiyat-oneri'),
+      headers: _headers(),
+      body: jsonEncode({'baslik': baslik}),
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+    throw Exception(res.body);
+  }
+
   // ============ İLANLAR ============
   static Future<Map<String, dynamic>> ilanOlustur({
     required String baslik,
